@@ -135,7 +135,8 @@ router.put('/profile', authenticate, uploadSingle('avatars'), async (req, res) =
         if (gameRank !== undefined) user.gameRank = gameRank.trim().slice(0, 50);
 
         if (req.file) {
-            user.avatarUrl = `/uploads/avatars/${req.file.filename}`;
+            // req.file.path = full Cloudinary HTTPS URL
+            user.avatarUrl = req.file.path;
         }
 
         await user.save();

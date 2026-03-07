@@ -137,7 +137,7 @@ router.post('/', authenticate, uploadSingle('photos'), async (req, res) => {
 
         const photo = new LocketPhoto({
             userId: req.user.id,
-            photoUrl: `/uploads/photos/${req.file.filename}`,
+            photoUrl: req.file.path,   // Cloudinary HTTPS URL
             caption: req.body.caption?.trim()?.slice(0, 200) || '',
         });
 

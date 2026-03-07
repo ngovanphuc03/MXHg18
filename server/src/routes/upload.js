@@ -1,5 +1,5 @@
 /**
- * Upload Routes — Media upload for chat, feed, avatars
+ * Upload Routes — Media upload via Cloudinary CDN
  */
 import { Router } from 'express';
 import { authenticate } from '../middleware/auth.js';
@@ -14,7 +14,7 @@ router.post('/image', authenticate, uploadSingle('photos'), async (req, res) => 
     try {
         if (!req.file) return res.status(400).json({ error: 'Không có file' });
         res.json({
-            url: `/uploads/photos/${req.file.filename}`,
+            url: req.file.path,          // Cloudinary HTTPS URL
             filename: req.file.originalname,
             size: req.file.size,
         });
@@ -24,14 +24,29 @@ router.post('/image', authenticate, uploadSingle('photos'), async (req, res) => 
 });
 
 /**
- * POST /api/upload/chat — Upload chat media (images, files)
+ * POST /api/upload/avatar — Upload avatar
+ */
+router.post('/avatar', authenticate, uploadSingle('avatars'), async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ error: 'Không có file' });
+        res.json({
+            url: req.file.path,
+            filename: req.file.originalname,
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Upload avatar thất bại' });
+    }
+});
+
+/**
+ * POST /api/upload/chat — Upload chat media
  */
 router.post('/chat', authenticate, uploadMultiple('chat', 5), async (req, res) => {
     try {
         if (!req.files?.length) return res.status(400).json({ error: 'Không có file' });
         res.json({
             files: req.files.map(f => ({
-                url: `/uploads/chat/${f.filename}`,
+                url: f.path,             // Cloudinary HTTPS URL
                 filename: f.originalname,
                 mimetype: f.mimetype,
                 size: f.size,
