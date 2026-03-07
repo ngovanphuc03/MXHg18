@@ -45,6 +45,3 @@ export const uploadMultiple = (folder, maxFiles = 5) => (req, res, next) => {
     multer({ storage: makeStorage(folder), fileFilter, limits: { fileSize: maxSize, files: maxFiles } })
         .array('files', maxFiles)(req, res, next);
 };
-
-    };
-};
