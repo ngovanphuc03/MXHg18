@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: dong-g18-server
+    runtime: node
+    rootDir: .
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: MONGODB_URI
+        sync: false   # ← điền thủ công trên dashboard Render
+      - key: JWT_SECRET
+        sync: false   # ← điền thủ công trên dashboard Render
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: CLIENT_URL
+        value: "*"
