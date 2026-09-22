@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Bảng Xếp Hạng - Top người chơi tại Pixel PlayZone">
+    <meta property="og:title" content="🏆 Bảng Xếp Hạng - Pixel PlayZone">
+    <meta property="og:description" content="Top người chơi giàu nhất Pixel PlayZone. Bạn có lọt vào bảng vàng?">
+    <meta property="og:image" content="/images/icons/icon-512.svg">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#030014">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏆</text></svg>">
+    <title>🏆 Bảng Xếp Hạng - Pixel PlayZone</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="css/fonts.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        @property --ring-angle {
+            syntax: '<angle>';
+            initial-value: 0deg;
+            inherits: false
+        }
+
+        @property --glow-intensity {
+            syntax: '<number>';
+            initial-value: 0;
+            inherits: false
+        }
+
+        :root {
+            --neon-cyan: #00f0ff;
+            --neon-magenta: #ff00aa;
+            --neon-purple: #8b5cf6;
+            --neon-green: #00ff88;
+            --neon-gold: #ffd700;
+            --neon-red: #ff3366;
+            --bg: #030014;
+            --surface: rgba(15, 15, 35, .8);
+            --glass: rgba(255, 255, 255, .03);
+            --glass-border: rgba(255, 255, 255, .06);
+            --font-display: 'DearPix', 'Orbitron', sans-serif;
+            --font-body: 'DearPix', 'Rajdhani', sans-serif;
+            --font-pixel: 'DearPix', monospace;
+            --font-pixel-en: 'DearPix', cursive;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #bgCanvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none
+        }
+
+        .bg-mesh {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse 60% 50% at 20% 10%, rgba(255, 215, 0, .06) 0%, transparent 70%),
+                radial-gradient(ellipse 50% 60% at 80% 90%, rgba(0, 240, 255, .04) 0%, transparent 70%),
+                radial-gradient(ellipse 40% 40% at 50% 50%, rgba(139, 92, 246, .05) 0%, transparent 60%);
+        }
+
+        .hex-grid {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: .025;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100' fill='none' stroke='%23ffd700' stroke-width='0.5'/%3E%3C/svg%3E");
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 680px;
+            padding: 0 16px
+        }
+
+        .top-bar {
+            width: 100vw;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            height: 56px;
+            background: rgba(3, 0, 20, .85);
+            backdrop-filter: blur(20px) saturate(1.5);
+            border-bottom: 1px solid rgba(255, 255, 255, .04);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid rgba(255, 255, 255, .08);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: var(--font-pixel-en);
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: .5px;
+            text-decoration: none;
+            transition: .3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(139, 92, 246, .15);
+            border-color: rgba(139, 92, 246, .3);
+            color: #fff
+        }
+
+        .balance-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, rgba(255, 215, 0, .1), rgba(255, 215, 0, .03));
+            border: 1px solid rgba(255, 215, 0, .25);
+            border-radius: 50px;
+            padding: 7px 18px;
+            font-family: var(--font-display);
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--neon-gold);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .balance-pill::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, .08), transparent);
+            animation: pillShine 3s ease infinite;
+        }
+
+        @keyframes pillShine {
+            0% {
+                left: -100%
+            }
+
+            100% {
+                left: 200%
+            }
+        }
+
+        /* ═══ HEADER ═══ */
+        .header {
+            margin-top: 30px;
+            text-align: center;
+            position: relative
+        }
+
+        .trophy-icon {
+            font-size: 44px;
+            display: inline-block;
+            filter: drop-shadow(0 0 20px rgba(255, 215, 0, .4));
+            animation: trophyBob 3s ease-in-out infinite;
+        }
+
+        @keyframes trophyBob {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(-3deg)
+            }
+
+            50% {
+                transform: translateY(-10px) rotate(3deg)
+            }
+        }
+
+        .page-title {
+            font-family: var(--font-pixel-en);
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            margin: 8px 0 4px;
+            background: linear-gradient(135deg, var(--neon-gold), #fff5a0, var(--neon-gold));
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: goldShift 3s ease infinite;
+            image-rendering: pixelated;
+        }
+
+        @keyframes goldShift {
+
+            0%,
+            100% {
+                background-position: 0% 50%
+            }
+
+            50% {
+                background-position: 100% 50%
+            }
+        }
+
+        .page-title-line {
+            width: 120px;
+            height: 3px;
+            margin: 8px auto 0;
+            border-radius: 0;
+            background: linear-gradient(90deg, transparent, var(--neon-gold), rgba(255, 215, 0, .3), var(--neon-gold), transparent);
+            animation: lineGlow 3s ease-in-out infinite;
+            image-rendering: pixelated;
+        }
+
+        @keyframes lineGlow {
+
+            0%,
+            100% {
+                opacity: .5;
+                width: 80px
+            }
+
+            50% {
+                opacity: 1;
+                width: 140px
+            }
+        }
+
+        .page-sub {
+            color: rgba(255, 255, 255, .3);
+            font-size: 15px;
+            margin-top: 10px;
+            font-family: var(--font-pixel-en);
+            letter-spacing: 3px;
+            font-weight: 500;
+            image-rendering: pixelated;
+        }
+
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 10px;
+            padding: 5px 14px;
+            border-radius: 3px;
+            background: rgba(0, 255, 136, .06);
+            border: 2px solid rgba(0, 255, 136, .15);
+            font-family: var(--font-pixel-en);
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--neon-green);
+            letter-spacing: 1px;
+            image-rendering: pixelated;
+            box-shadow: 2px 2px 0 rgba(0, 255, 136, .08);
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--neon-green);
+            animation: ldot 1.5s ease-in-out infinite
+        }
+
+        @keyframes ldot {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1)
+            }
+
+            50% {
+                opacity: .3;
+                transform: scale(.7)
+            }
+        }
+
+        /* ═══ TAB BAR ═══ */
+        .tab-bar {
+            margin-top: 20px;
+            width: 100%;
+            display: flex;
+            background: rgba(8, 8, 24, .7);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, .04);
+            padding: 4px;
+            backdrop-filter: blur(12px);
+            gap: 4px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 8px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: rgba(255, 255, 255, .4);
+            font-family: var(--font-pixel-en);
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: .3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            image-rendering: pixelated;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: rgba(255, 255, 255, .6);
+            background: rgba(255, 255, 255, .03)
+        }
+
+        .tab-btn.active {
+            color: #fff;
+            box-shadow: 0 2px 12px rgba(139, 92, 246, .2);
+        }
+
+        .tab-btn.active[data-tab="balance"] {
+            background: linear-gradient(135deg, rgba(255, 215, 0, .15), rgba(255, 215, 0, .05));
+            color: var(--neon-gold)
+        }
+
+        .tab-btn.active[data-tab="level"] {
+            background: linear-gradient(135deg, rgba(88, 101, 242, .15), rgba(88, 101, 242, .05));
+            color: #5865F2
+        }
+
+        .tab-btn.active[data-tab="xp"] {
+            background: linear-gradient(135deg, rgba(0, 240, 255, .15), rgba(0, 240, 255, .05));
+            color: var(--neon-cyan)
+        }
+
+        /* ═══ MY RANK CARD ═══ */
+        .my-rank {
+            margin-top: 20px;
+            width: 100%;
+            background: linear-gradient(135deg, rgba(139, 92, 246, .08), rgba(0, 240, 255, .04));
+            border: 1px solid rgba(139, 92, 246, .15);
+            border-radius: 16px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            backdrop-filter: blur(15px);
+            position: relative;
+            overflow: hidden;
+            animation: myRankGlow 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes myRankGlow {
+            0% {
+                box-shadow: 0 0 15px rgba(139, 92, 246, .05)
+            }
+
+            100% {
+                box-shadow: 0 0 40px rgba(139, 92, 246, .12)
+            }
+        }
+
+        .my-rank::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: 17px;
+            padding: 1px;
+            background: conic-gradient(from var(--ring-angle), var(--neon-purple), var(--neon-cyan), var(--neon-gold), var(--neon-purple));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            opacity: .25;
+            animation: ringRotate 6s linear infinite;
+        }
+
+        @keyframes ringRotate {
+            to {
+                --ring-angle: 360deg
+            }
+        }
+
+        .my-rank-pos {
+            font-family: var(--font-display);
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--neon-gold);
+            min-width: 50px;
+            text-align: center;
+            text-shadow: 0 0 15px rgba(255, 215, 0, .3);
+        }
+
+        .my-rank-avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--neon-purple);
+            box-shadow: 0 0 12px rgba(139, 92, 246, .3);
+        }
+
+        .my-rank-info {
+            flex: 1
+        }
+
+        .my-rank-label {
+            font-family: var(--font-pixel-en);
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, .25);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            image-rendering: pixelated;
+        }
+
+        .my-rank-name {
+            font-weight: 800;
+            font-size: 16px;
+            margin-top: 2px
+        }
+
+        .my-rank-balance {
+            color: var(--neon-gold);
+            font-weight: 700;
+            font-size: 15px;
+            font-family: var(--font-display)
+        }
+
+        .my-rank-info {
+            position: relative
+        }
+
+        .my-rank-info::before {
+            content: '▸';
+            position: absolute;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+            font-family: 'DearPix', monospace;
+            font-size: 16px;
+            color: var(--neon-purple);
+            opacity: .2;
+            animation: pixelBlink 1.2s step-end infinite;
+        }
+
+        @keyframes pixelBlink {
+
+            0%,
+            49% {
+                opacity: .25
+            }
+
+            50%,
+            100% {
+                opacity: 0
+            }
+        }
+
+        /* ═══ RANK BADGE (in leaderboard rows) ═══ */
+        .lb-rank-badge {
+            display: inline-block;
+            padding: 1px 6px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-left: 4px;
+            border: 1px solid;
+            vertical-align: middle;
+        }
+
+        /* ═══ PODIUM ═══ */
+        .podium-section {
+            margin-top: 28px;
+            position: relative;
+            width: 100%
+        }
+
+        .podium {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            justify-content: center
+        }
+
+        .podium-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            animation: podiumRise .8s cubic-bezier(.175, .885, .32, 1.275) both;
+        }
+
+        .p-2 {
+            animation-delay: .2s
+        }
+
+        .p-1 {
+            animation-delay: .4s
+        }
+
+        .p-3 {
+            animation-delay: .1s
+        }
+
+        @keyframes podiumRise {
+            0% {
+                opacity: 0;
+                transform: translateY(50px) scale(.85)
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1)
+            }
+        }
+
+        .podium-avatar-wrap {
+            position: relative;
+            display: inline-block
+        }
+
+        .podium-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(255, 255, 255, .1);
+            position: relative;
+            z-index: 1;
+            transition: .4s;
+        }
+
+        .podium-item:hover .podium-avatar {
+            transform: scale(1.1)
+        }
+
+        .p-1 .podium-avatar {
+            width: 72px;
+            height: 72px;
+            border-color: var(--neon-gold);
+            box-shadow: 0 0 25px rgba(255, 215, 0, .35), 0 0 60px rgba(255, 215, 0, .1);
+        }
+
+        .p-1 .podium-avatar-wrap::before {
+            content: '👑';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 22px;
+            z-index: 2;
+            filter: drop-shadow(0 0 8px rgba(255, 215, 0, .6));
+            animation: trophyBob 2.5s ease-in-out infinite;
+        }
+
+        .p-1 .podium-avatar-wrap::after {
+            content: '';
+            position: absolute;
+            inset: -5px;
+            border-radius: 50%;
+            z-index: 0;
+            background: conic-gradient(from var(--ring-angle), #ffd700, #ff8c00, #ffd700, #fff5a0, #ffd700);
+            animation: ringRotate 3s linear infinite;
+            opacity: .5;
+        }
+
+        .p-2 .podium-avatar {
+            border-color: #c0c0c0;
+            box-shadow: 0 0 15px rgba(192, 192, 192, .2)
+        }
+
+        .p-2 .podium-avatar-wrap::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            z-index: 0;
+            background: conic-gradient(from var(--ring-angle), #c0c0c0, #e8e8e8, #c0c0c0, #808080, #c0c0c0);
+            animation: ringRotate 4s linear infinite;
+            opacity: .35;
+        }
+
+        .p-3 .podium-avatar {
+            border-color: #cd7f32;
+            box-shadow: 0 0 15px rgba(205, 127, 50, .2)
+        }
+
+        .p-3 .podium-avatar-wrap::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            z-index: 0;
+            background: conic-gradient(from var(--ring-angle), #cd7f32, #e8a860, #cd7f32, #8b4513, #cd7f32);
+            animation: ringRotate 4s linear infinite;
+            opacity: .35;
+        }
+
+        .podium-medal {
+            font-size: 26px;
+            filter: drop-shadow(0 0 5px rgba(255, 215, 0, .3))
+        }
+
+        .podium-name {
+            font-size: 14px;
+            font-weight: 700;
+            max-width: 80px;
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .podium-balance {
+            font-family: var(--font-display);
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--neon-gold);
+            text-shadow: 0 0 6px rgba(255, 215, 0, .2);
+        }
+
+        .podium-bar {
+            width: 80px;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-weight: 900;
+            font-size: 18px;
+            color: rgba(255, 255, 255, .85);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, .3);
+        }
+
+        .podium-bar::after {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, .15), transparent);
+            animation: barShimmer 2.5s linear infinite;
+        }
+
+        @keyframes barShimmer {
+            0% {
+                transform: translateX(-100%) translateY(-100%)
+            }
+
+            100% {
+                transform: translateX(100%) translateY(100%)
+            }
+        }
+
+        .podium-bar::before {
+            content: '▄▄▄';
+            position: absolute;
+            top: 8px;
+            font-family: 'DearPix', monospace;
+            font-size: 5px;
+            letter-spacing: 2px;
+            color: rgba(255, 255, 255, .2);
+            z-index: 2;
+        }
+
+        .p-1 .podium-bar {
+            height: 110px;
+            background: linear-gradient(180deg, #ffd700, #e8a000, #b8860b);
+            box-shadow: 0 0 30px rgba(255, 215, 0, .2)
+        }
+
+        .p-2 .podium-bar {
+            height: 75px;
+            background: linear-gradient(180deg, #d0d0d0, #a0a0a0, #707070)
+        }
+
+        .p-3 .podium-bar {
+            height: 50px;
+            background: linear-gradient(180deg, #cd7f32, #a06020, #804010)
+        }
+
+        .podium-floor {
+            width: 280px;
+            height: 4px;
+            margin: 0 auto;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, .2), rgba(192, 192, 192, .15), rgba(205, 127, 50, .15), transparent);
+            border-radius: 2px;
+        }
+
+        /* ═══ LEADERBOARD TABLE ═══ */
+        .lb-container {
+            margin-top: 22px;
+            width: 100%;
+            background: rgba(8, 8, 24, .7);
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, .04);
+            backdrop-filter: blur(12px);
+            overflow: hidden;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, .3);
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .lb-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 10%;
+            right: 10%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, .3), rgba(139, 92, 246, .3), rgba(0, 240, 255, .3), transparent);
+        }
+
+        .lb-container::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            opacity: .03;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 255, .1) 2px, rgba(255, 255, 255, .1) 4px);
+            border-radius: 18px;
+        }
+
+        .lb-inner {
+            padding: 6px 14px 14px
+        }
+
+        .lb-header {
+            display: flex;
+            padding: 10px 14px;
+            font-family: var(--font-pixel-en);
+            font-size: 14px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, .2);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border-bottom: 2px solid rgba(255, 255, 255, .04);
+            image-rendering: pixelated;
+        }
+
+        .lb-header .col-rank {
+            width: 42px
+        }
+
+        .lb-header .col-user {
+            flex: 1
+        }
+
+        .lb-header .col-bal {
+            width: 110px;
+            text-align: right
+        }
+
+        .lb-row {
+            display: flex;
+            align-items: center;
+            padding: 10px 14px;
+            border-radius: 10px;
+            margin: 3px 0;
+            transition: all .3s cubic-bezier(.25, .46, .45, .94);
+            position: relative;
+            animation: rowSlide .4s ease-out both;
+        }
+
+        @keyframes rowSlide {
+            0% {
+                opacity: 0;
+                transform: translateX(-10px)
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateX(0)
+            }
+        }
+
+        .lb-row:hover {
+            background: rgba(255, 255, 255, .04);
+            transform: translateX(4px)
+        }
+
+        .lb-row.top-1 {
+            background: linear-gradient(90deg, rgba(255, 215, 0, .08), rgba(255, 215, 0, .01), transparent);
+            border: 1px solid rgba(255, 215, 0, .1)
+        }
+
+        .lb-row.top-1::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 10px;
+            background: linear-gradient(90deg, rgba(255, 215, 0, .04), transparent);
+            animation: goldPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes goldPulse {
+
+            0%,
+            100% {
+                opacity: .3
+            }
+
+            50% {
+                opacity: 1
+            }
+        }
+
+        .lb-row.top-2 {
+            background: linear-gradient(90deg, rgba(192, 192, 192, .06), transparent);
+            border: 1px solid rgba(192, 192, 192, .06)
+        }
+
+        .lb-row.top-3 {
+            background: linear-gradient(90deg, rgba(205, 127, 50, .06), transparent);
+            border: 1px solid rgba(205, 127, 50, .06)
+        }
+
+        .lb-row.is-me {
+            background: linear-gradient(90deg, rgba(139, 92, 246, .1), rgba(0, 240, 255, .03), transparent);
+            border: 1px solid rgba(139, 92, 246, .2);
+            box-shadow: 0 0 20px rgba(139, 92, 246, .08);
+        }
+
+        .lb-rank {
+            width: 42px;
+            font-family: var(--font-display);
+            font-weight: 900;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .rank-1 {
+            color: var(--neon-gold);
+            text-shadow: 0 0 10px rgba(255, 215, 0, .4)
+        }
+
+        .rank-2 {
+            color: #c0c0c0;
+            text-shadow: 0 0 8px rgba(192, 192, 192, .3)
+        }
+
+        .rank-3 {
+            color: #cd7f32;
+            text-shadow: 0 0 8px rgba(205, 127, 50, .3)
+        }
+
+        .lb-user {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px
+        }
+
+        .lb-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, .08);
+            flex-shrink: 0;
+        }
+
+        .lb-row.top-1 .lb-avatar {
+            border-color: rgba(255, 215, 0, .4)
+        }
+
+        .lb-row.top-2 .lb-avatar {
+            border-color: rgba(192, 192, 192, .3)
+        }
+
+        .lb-row.top-3 .lb-avatar {
+            border-color: rgba(205, 127, 50, .3)
+        }
+
+        .lb-row.is-me .lb-avatar {
+            border-color: rgba(139, 92, 246, .4)
+        }
+
+        .lb-name {
+            font-weight: 700;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .lb-me-tag {
+            font-family: var(--font-pixel-en);
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--neon-purple);
+            background: rgba(139, 92, 246, .15);
+            padding: 2px 6px;
+            border-radius: 2px;
+            letter-spacing: 1px;
+            image-rendering: pixelated;
+            box-shadow: 1px 1px 0 rgba(139, 92, 246, .2);
+        }
+
+        .lb-balance {
+            width: 110px;
+            text-align: right;
+            font-family: var(--font-display);
+            font-weight: 800;
+            color: var(--neon-gold);
+            font-size: 14px;
+            text-shadow: 0 0 6px rgba(255, 215, 0, .15);
+        }
+
+        .refresh-btn {
+            margin: 4px 0 30px;
+            padding: 10px 24px;
+            border: none;
+            border-radius: 3px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, .12), rgba(0, 240, 255, .06));
+            border: 2px solid rgba(139, 92, 246, .15);
+            color: rgba(255, 255, 255, .7);
+            font-family: var(--font-pixel-en);
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: .3s;
+            position: relative;
+            overflow: hidden;
+            image-rendering: pixelated;
+            box-shadow: 3px 3px 0 rgba(0, 0, 0, .3);
+        }
+
+        .refresh-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .06), transparent);
+            transition: .5s;
+        }
+
+        .refresh-btn:hover::after {
+            left: 200%
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(139, 92, 246, .15);
+            color: #fff
+        }
+
+        .refresh-btn:active {
+            transform: scale(.97)
+        }
+
+        .refresh-btn.spinning .btn-icon {
+            animation: spin360 .8s ease
+        }
+
+        @keyframes spin360 {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        .btn-icon {
+            display: inline-block;
+            transition: .3s
+        }
+
+        .loading-text {
+            color: rgba(255, 255, 255, .3);
+            font-size: 14px
+        }
+
+        .coin {
+            position: fixed;
+            font-size: 14px;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0;
+            animation: coinFloat linear infinite;
+        }
+
+        @keyframes coinFloat {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0
+            }
+
+            10% {
+                opacity: .5
+            }
+
+            90% {
+                opacity: .2
+            }
+
+            100% {
+                transform: translateY(-20vh) rotate(720deg);
+                opacity: 0
+            }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all .5s cubic-bezier(.25, .46, .45, .94)
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0)
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            opacity: .04;
+            pointer-events: none;
+            background-image: linear-gradient(rgba(255, 215, 0, .2) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 215, 0, .2) 1px, transparent 1px);
+            background-size: 4px 4px;
+            image-rendering: pixelated;
+        }
+
+        @media(max-width:500px) {
+            .p-1 .podium-avatar {
+                width: 58px;
+                height: 58px
+            }
+
+            .podium-avatar {
+                width: 42px;
+                height: 42px
+            }
+
+            .podium-bar {
+                width: 64px
+            }
+
+            .p-1 .podium-bar {
+                height: 90px
+            }
+
+            .podium-floor {
+                width: 220px
+            }
+
+            .page-title {
+                font-size: 22px;
+                letter-spacing: 2px
+            }
+
+            .trophy-icon {
+                font-size: 36px
+            }
+
+            .my-rank {
+                padding: 12px 14px
+            }
+
+            .tab-btn {
+                font-size: 12px;
+                padding: 8px 4px;
+                gap: 3px
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <noscript>
+        <div
+            style="background:#030014;color:#fff;padding:40px;text-align:center;font-family:sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;">
+            <h2>⚠️ Bạn cần bật JavaScript để chơi Pixel PlayZone!</h2>
+        </div>
+    </noscript>
+    <div id="ppz-loading"
+        style="position:fixed;inset:0;background:#030014;z-index:99999;display:flex;justify-content:center;align-items:center;flex-direction:column;transition:opacity .5s">
+        <div
+            style="width:60px;height:60px;border:3px solid transparent;border-top-color:#00f0ff;border-bottom-color:#ff00aa;border-radius:50%;animation:ppzSpin 1s linear infinite">
+        </div>
+        <p style="color:#00f0ff;margin-top:16px;font-size:14px;letter-spacing:4px">LOADING</p>
+    </div>
+    <style>
+        @keyframes ppzSpin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+    </style>
+
+    <canvas id="bgCanvas"></canvas>
+    <div class="bg-mesh"></div>
+    <div class="hex-grid"></div>
+
+    <div class="content">
+        <div class="top-bar">
+            <a href="/" class="back-btn">← LOBBY</a>
+            <div id="ppz-toolbar" style="display:flex;align-items:center;gap:6px"></div>
+            <div class="balance-pill">💰 <span id="balance">0</span> $</div>
+        </div>
+
+        <div class="header reveal">
+            <div class="trophy-icon">🏆</div>
+            <h1 class="page-title">LEADERBOARD</h1>
+            <div class="page-title-line"></div>
+            <p class="page-sub">TOP PLAYERS RANKING</p>
+            <div class="live-badge">
+                <span class="live-dot"></span>
+                <span>LIVE • <span id="playerCount">0</span> PLAYERS</span>
+            </div>
+        </div>
+
+        <!-- TAB BAR -->
+        <div class="tab-bar reveal">
+            <button class="tab-btn active" data-tab="balance" onclick="switchTab('balance')">💰 Balance</button>
+            <button class="tab-btn" data-tab="level" onclick="switchTab('level')">⭐ Level</button>
+            <button class="tab-btn" data-tab="xp" onclick="switchTab('xp')">📊 Total XP</button>
+        </div>
+
+        <div class="my-rank reveal" id="myRankCard" style="display:none">
+            <div class="my-rank-pos" id="myRankPos">#?</div>
+            <img class="my-rank-avatar" id="myRankAvatar" src="/images/ui/default-avatar.svg" alt="">
+            <div class="my-rank-info">
+                <div class="my-rank-label">YOUR RANK</div>
+                <div class="my-rank-name" id="myRankName">-</div>
+                <div class="my-rank-balance" id="myRankBalance">0 $</div>
+            </div>
+        </div>
+
+        <div class="podium-section reveal">
+            <div class="podium" id="podium"></div>
+            <div class="podium-floor"></div>
+        </div>
+
+        <div class="lb-container reveal">
+            <div class="lb-inner">
+                <div class="lb-header">
+                    <div class="col-rank">#</div>
+                    <div class="col-user">PLAYER</div>
+                    <div class="col-bal" id="colBalLabel">BALANCE</div>
+                </div>
+                <div id="lbBody">
+                    <p class="loading-text" style="text-align:center;padding:30px">⏳ Loading...</p>
+                </div>
+            </div>
+        </div>
+
+        <button class="refresh-btn" onclick="refreshClicked()">
+            <span class="btn-icon">🔄</span> REFRESH
+        </button>
+    </div>
+
+    <script>
+        // ═══ CANVAS PARTICLE SYSTEM ═══
+        const canvas = document.getElementById('bgCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [], mouseX = -1, mouseY = -1;
+        function resizeCanvas() { canvas.width = innerWidth; canvas.height = innerHeight }
+        addEventListener('resize', resizeCanvas); resizeCanvas();
+        class Particle {
+            constructor() { this.reset() }
+            reset() {
+                this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - .5) * .25; this.vy = (Math.random() - .5) * .25;
+                this.size = Math.random() * 1.8 + .4;
+                this.hue = Math.random() < .4 ? 45 + Math.random() * 15 : 260 + Math.random() * 30;
+                this.alpha = Math.random() * .3 + .08;
+                this.phase = Math.random() * Math.PI * 2;
+                this.pulseSpeed = Math.random() * .015 + .005;
+            }
+            update(t) {
+                this.x += this.vx; this.y += this.vy;
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+                this.cAlpha = this.alpha * (.6 + .4 * Math.sin(t * this.pulseSpeed + this.phase));
+                if (mouseX > 0) { const dx = this.x - mouseX, dy = this.y - mouseY, d = Math.sqrt(dx * dx + dy * dy); if (d < 130) { const f = (130 - d) / 130 * .4; this.x += dx / d * f; this.y += dy / d * f } }
+            }
+            draw() {
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `hsla(${this.hue},60%,60%,${this.cAlpha})`; ctx.fill();
+                if (this.size > 1.2) { ctx.shadowBlur = this.size * 6; ctx.shadowColor = `hsla(${this.hue},60%,60%,${this.cAlpha * .4})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size * .5, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0 }
+            }
+        }
+        for (let i = 0; i < 60; i++) particles.push(new Particle());
+        let frame = 0;
+        function animate() {
+            frame++; ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const g = ctx.createRadialGradient(canvas.width / 2, canvas.height * .3, 0, canvas.width / 2, canvas.height * .3, canvas.width * .6);
+            g.addColorStop(0, 'rgba(25,10,60,0.1)'); g.addColorStop(1, 'rgba(3,0,14,0)');
+            ctx.fillStyle = g; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(frame); p.draw() });
+            for (let i = 0; i < particles.length; i++) { for (let j = i + 1; j < particles.length; j++) { const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y, d = Math.sqrt(dx * dx + dy * dy); if (d < 100) { ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y); ctx.strokeStyle = `rgba(255,215,0,${(1 - d / 100) * .04})`; ctx.lineWidth = .5; ctx.stroke() } } }
+            requestAnimationFrame(animate);
+        }
+        animate();
+        document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY });
+        document.addEventListener('mouseleave', () => { mouseX = -1; mouseY = -1 });
+
+        // ═══ FLOATING COINS ═══
+        (function () {
+            const emojis = ['💰', '🪙', '💎', '⭐', '🏆'];
+            for (let i = 0; i < 6; i++) { const c = document.createElement('div'); c.className = 'coin'; c.textContent = emojis[Math.floor(Math.random() * emojis.length)]; c.style.left = Math.random() * 100 + '%'; c.style.fontSize = (10 + Math.random() * 12) + 'px'; c.style.animationDuration = (12 + Math.random() * 15) + 's'; c.style.animationDelay = Math.random() * 10 + 's'; document.body.appendChild(c) }
+        })();
+
+        // ═══ SCROLL REVEAL ═══
+        const obs = new IntersectionObserver(entries => { entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible') }) }, { threshold: .1 });
+        document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+        // ═══ LEVEL ROLES (matching bot config) ═══
+        const LEVEL_ROLES = {
+            80: { name: 'Ông Trùm', color: '#ffd700', icon: '👑' },
+            40: { name: 'Lão Làng', color: '#8b5cf6', icon: '🐉' },
+            20: { name: 'Đàn Anh', color: '#ff00aa', icon: '⚔️' },
+            10: { name: 'Tay Chơi', color: '#00f0ff', icon: '🎯' },
+            5: { name: 'Lính Mới', color: '#00ff88', icon: '🛡️' },
+            1: { name: 'Người Qua Đường', color: '#888', icon: '👤' },
+        };
+        function getRankRole(level) {
+            for (const t of [80, 40, 20, 10, 5, 1]) { if (level >= t) return LEVEL_ROLES[t]; }
+            return { name: '?', color: '#555', icon: '❓' };
+        }
+
+        // ═══ MAIN LOGIC ═══
+        let currentTab = 'balance';
+        let meData = null;
+        const lbCache = {};
+
+        function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML }
+        function animateCounter(el, target) {
+            const dur = 1000, start = performance.now();
+            function tick(now) { const p = Math.min((now - start) / dur, 1); const eased = 1 - Math.pow(1 - p, 3); el.textContent = Math.floor(eased * target).toLocaleString(); if (p < 1) requestAnimationFrame(tick); else el.textContent = target.toLocaleString() }
+            requestAnimationFrame(tick);
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.tab === tab);
+            });
+            // Update column header
+            const labels = { balance: 'BALANCE', level: 'LEVEL', xp: 'TOTAL XP' };
+            document.getElementById('colBalLabel').textContent = labels[tab] || 'BALANCE';
+            loadTab(tab);
+        }
+
+        async function loadTab(tab) {
+            const lbBody = document.getElementById('lbBody');
+            lbBody.innerHTML = '<p class="loading-text" style="text-align:center;padding:30px">⏳ Loading...</p>';
+
+            try {
+                if (!meData) {
+                    const meRes = await fetch('/api/me');
+                    if (!meRes.ok) { location.href = '/'; return; }
+                    meData = await meRes.json();
+                    animateCounter(document.getElementById('balance'), Number(meData.balance));
+                }
+
+                const apiMap = {
+                    balance: '/api/leaderboard',
+                    level: '/api/leaderboard/level',
+                    xp: '/api/leaderboard/xp'
+                };
+                const lbRes = await fetch(apiMap[tab]);
+                if (!lbRes.ok) {
+                    const err = await lbRes.json().catch(() => ({}));
+                    lbBody.innerHTML = `<p class="loading-text" style="text-align:center;color:#ff3366;padding:20px">❌ ${escapeHtml(err.error || 'Error')}</p>`;
+                    return;
+                }
+                const lb = await lbRes.json();
+                lbCache[tab] = lb;
+
+                if (!lb || !lb.leaderboard || !lb.leaderboard.length) {
+                    document.getElementById('podium').innerHTML = '';
+                    lbBody.innerHTML = '<p class="loading-text" style="text-align:center;padding:20px">📭 No data yet</p>';
+                    document.getElementById('myRankCard').style.display = 'none';
+                    document.getElementById('playerCount').textContent = '0';
+                    return;
+                }
+
+                const list = lb.leaderboard;
+                document.getElementById('playerCount').textContent = list.length;
+
+                // My rank card
+                if (lb.my_rank) {
+                    const card = document.getElementById('myRankCard'); card.style.display = 'flex';
+                    document.getElementById('myRankPos').textContent = '#' + lb.my_rank;
+                    document.getElementById('myRankName').textContent = meData.username;
+                    document.getElementById('myRankAvatar').src = meData.avatar || '/images/ui/default-avatar.svg';
+                    // Balance display varies by tab
+                    if (tab === 'balance') {
+                        document.getElementById('myRankBalance').textContent = Number(meData.balance || 0).toLocaleString() + ' $';
+                    } else if (tab === 'level') {
+                        const myEntry = list.find(l => l.user_id === lb.my_user_id);
+                        document.getElementById('myRankBalance').textContent = myEntry ? 'Lv.' + (myEntry.level || 0) : '';
+                    } else if (tab === 'xp') {
+                        const myEntry = list.find(l => l.user_id === lb.my_user_id);
+                        document.getElementById('myRankBalance').textContent = myEntry ? (Number(myEntry.totalXp) || 0).toLocaleString() + ' XP' : '';
+                    }
+                } else {
+                    document.getElementById('myRankCard').style.display = 'none';
+                }
+
+                if (list.length >= 3) renderPodium(list.slice(0, 3), tab);
+                else document.getElementById('podium').innerHTML = '';
+                renderList(list, lb.my_user_id, tab);
+            } catch (e) {
+                console.error(e);
+                lbBody.innerHTML = '<p class="loading-text" style="text-align:center;color:#ff3366;padding:20px">❌ Connection error</p>';
+            }
+        }
+
+        function getValueDisplay(user, tab) {
+            if (tab === 'balance') return Number(user.balance || 0).toLocaleString() + ' $';
+            if (tab === 'level') return 'Lv.' + (user.level || 0);
+            if (tab === 'xp') return (Number(user.totalXp) || 0).toLocaleString() + ' XP';
+            return '';
+        }
+
+        function renderPodium(top3, tab) {
+            const podium = document.getElementById('podium');
+            if (top3.length < 3) { podium.innerHTML = ''; return }
+            const order = [top3[1], top3[0], top3[2]];
+            const classes = ['p-2', 'p-1', 'p-3'];
+            const medals = ['🥈', '🥇', '🥉'];
+            podium.innerHTML = order.map((u, i) => `
+    <div class="podium-item ${classes[i]}">
+      <div class="podium-medal">${medals[i]}</div>
+      <div class="podium-avatar-wrap">
+        <img class="podium-avatar" src="${u.avatar || '/images/ui/default-avatar.svg'}" alt="" onerror="this.onerror=null;this.src='/images/ui/default-avatar.svg';">
+      </div>
+      <div class="podium-name">${escapeHtml(u.username || 'User')}</div>
+      <div class="podium-balance">${getValueDisplay(u, tab)}</div>
+      <div class="podium-bar">${i === 1 ? '1' : (i === 0 ? '2' : '3')}</div>
+    </div>`).join('');
+        }
+
+        function renderList(list, myId, tab) {
+            const body = document.getElementById('lbBody');
+            if (!list.length) { body.innerHTML = '<p class="loading-text" style="text-align:center">No data</p>'; return }
+            body.innerHTML = list.map((u, i) => {
+                const rank = i + 1;
+                let rc = rank === 1 ? 'top-1' : rank === 2 ? 'top-2' : rank === 3 ? 'top-3' : '';
+                const isMe = u.user_id === myId;
+                const rankColor = rank <= 3 ? `rank-${rank}` : '';
+                const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
+                const val = getValueDisplay(u, tab);
+
+                // Rank badge for level/xp tabs
+                let rankBadge = '';
+                if ((tab === 'level' || tab === 'xp') && u.rank && u.rank.tier > 0) {
+                    const r = u.rank;
+                    rankBadge = `<span class="lb-rank-badge" style="color:${r.color};border-color:${r.color};background:${r.color}15">${r.icon} ${r.name}</span>`;
+                } else if ((tab === 'level' || tab === 'xp') && u.level !== undefined && u.level > 0) {
+                    const r = getRankRole(u.level);
+                    rankBadge = `<span class="lb-rank-badge" style="color:${r.color};border-color:${r.color};background:${r.color}15">${r.icon} ${r.name}</span>`;
+                }
+
+                return `
+      <div class="lb-row ${rc} ${isMe ? 'is-me' : ''}" style="animation-delay:${i * .04}s">
+        <div class="lb-rank ${rankColor}">${medal}</div>
+        <div class="lb-user">
+          <img class="lb-avatar" src="${u.avatar || '/images/ui/default-avatar.svg'}" alt="" onerror="this.onerror=null;this.src='/images/ui/default-avatar.svg';">
+          <span class="lb-name">${escapeHtml(u.username || 'User')}${isMe ? ' <span class="lb-me-tag">YOU</span>' : ''}${rankBadge}</span>
+        </div>
+        <div class="lb-balance" style="color:${tab === 'level' ? '#5865F2' : tab === 'xp' ? 'var(--neon-cyan)' : 'var(--neon-gold)'}">${val}</div>
+      </div>`;
+            }).join('');
+        }
+
+        function refreshClicked() {
+            const btn = document.querySelector('.refresh-btn');
+            btn.classList.add('spinning');
+            meData = null; // force re-fetch
+            loadTab(currentTab).finally(() => setTimeout(() => btn.classList.remove('spinning'), 800));
+        }
+
+        // Initial load
+        loadTab('balance');
+    </script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/ppz-sfx-engine.js"></script>
+    <script src="/js/sound-system.js"></script>
+    <script src="/js/notify-system.js"></script>
+    <script src="/js/tutorial-system.js"></script>
+    <script src="/js/chat-system.js"></script>
+    <script src="/js/live-feed.js"></script>
+    <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => { });</script>
+    <script>window.addEventListener('load', () => { const l = document.getElementById('ppz-loading'); if (l) { l.style.opacity = '0'; setTimeout(() => l.remove(), 500) } })</script>
+</body>
+
+</html>

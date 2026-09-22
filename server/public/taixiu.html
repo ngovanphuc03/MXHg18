@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Tài Xỉu VIP - Chơi game xóc đĩa online tại Pixel PlayZone!">
+    <meta property="og:title" content="🎲 Tài Xỉu VIP - Pixel PlayZone">
+    <meta property="og:description" content="Tài hay Xỉu? Lắc xúc xắc realtime cùng bạn bè tại Pixel PlayZone!">
+    <meta property="og:image" content="/images/icons/icon-512.svg">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#1a0a0a">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎲</text></svg>">
+    <title>🎲 Tài Xỉu VIP - Pixel PlayZone</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <!-- Vietnamese-Optimized Font -->
+    <link rel="stylesheet" href="css/fonts.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="taixiu.css">
+</head>
+
+<body class="ppz-fullscreen">
+    <noscript>
+        <div
+            style="background:#1a0a0a;color:#fff;padding:40px;text-align:center;font-family:sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;">
+            <h2>⚠️ Bạn cần bật JavaScript để chơi Pixel PlayZone!</h2>
+        </div>
+    </noscript>
+    <div id="ppz-loading"
+        style="position:fixed;inset:0;background:#1a0a0a;z-index:99999;display:flex;justify-content:center;align-items:center;flex-direction:column;transition:opacity .5s">
+        <div
+            style="width:60px;height:60px;border:3px solid transparent;border-top-color:#ef4444;border-bottom-color:#f59e0b;border-radius:50%;animation:ppzSpin 1s linear infinite">
+        </div>
+        <p style="color:#ef4444;margin-top:16px;font-size:14px;letter-spacing:4px">LOADING</p>
+    </div>
+    <style>
+        @keyframes ppzSpin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+    </style>
+    <!-- Ambient Effects -->
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <div class="particles" id="particles"></div>
+
+    <div class="notification" id="notif">Thông báo</div>
+
+    <div class="header">
+        <!-- Nút Rời Bàn CSS Premium (Sử dụng wood-panel texture) -->
+        <a href="/" class="back-btn-wrapper">
+            <span class="btn-text">← LOBBY</span>
+        </a>
+        <div class="header-right">
+            <div id="ppz-toolbar" style="display:flex;align-items:center;gap:6px"></div>
+            <button id="music-btn" onclick="toggleMusic()" class="icon-btn">🎵</button>
+            <div class="user-money">
+                <span class="money-icon">💰</span>
+                <span id="balance">...</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-board">
+        <div class="side-panel">
+            <!-- Sử dụng wood-board-red.png - đã có chữ TÀI sẵn -->
+            <div class="bet-circle-img" id="box-tai" onclick="quickBet('tai')">
+                <img src="images/ui/wood-board-red.png" alt="TÀI" class="board-img">
+                <div class="bet-overlay">
+                    <div class="rate">1 : 1.98</div>
+                    <div class="player-count" id="tai-players">0 người</div>
+                </div>
+            </div>
+            <div class="total-bet" id="total-tai">
+                <span class="total-icon">💵</span>
+                <span>0</span>
+            </div>
+            <div class="my-bet" id="my-tai"></div>
+        </div>
+
+        <div class="center-stage">
+            <div class="timer-container" id="timer-container">
+                <div class="timer-ring"></div>
+                <div class="timer" id="timer">00</div>
+            </div>
+            <img src="images/dice/plate.png" class="plate">
+            <div class="dice-container">
+                <img src="images/dice/1.png" class="dice" id="d1">
+                <img src="images/dice/1.png" class="dice" id="d2">
+                <img src="images/dice/1.png" class="dice" id="d3">
+            </div>
+            <div class="bowl-container" id="bowl">
+                <div class="bowl-img"></div>
+            </div>
+            <div id="result-toast">
+                <div class="toast-content">
+                    <div class="toast-text" id="toast-text">...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="side-panel">
+            <!-- Sử dụng wood-board-blue.png - đã có chữ XỈU sẵn -->
+            <div class="bet-circle-img" id="box-xiu" onclick="quickBet('xiu')">
+                <img src="images/ui/wood-board-blue.png" alt="XỈU" class="board-img">
+                <div class="bet-overlay">
+                    <div class="rate">1 : 1.98</div>
+                    <div class="player-count" id="xiu-players">0 người</div>
+                </div>
+            </div>
+            <div class="total-bet" id="total-xiu">
+                <span class="total-icon">💵</span>
+                <span>0</span>
+            </div>
+            <div class="my-bet" id="my-xiu"></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <!-- BẢNG CẦU PRO - Toggle Button sử dụng wood-frame -->
+        <button id="toggle-history-btn" onclick="toggleHistoryBoard()" class="history-toggle-btn">
+            <span class="toggle-icon">📊</span> Xem Cầu
+        </button>
+
+        <!-- BẢNG CẦU PRO - Grid 6x20 -->
+        <div id="history-board" class="history-board hidden">
+            <div class="history-board-header">
+                <span>📈 BẢNG CẦU - 120 VÁN GẦN NHẤT</span>
+                <button onclick="toggleHistoryBoard()" class="close-btn">✕</button>
+            </div>
+            <div id="history-grid" class="history-grid">
+                <!-- JS sẽ render 120 ô ở đây -->
+            </div>
+            <div class="history-legend">
+                <span class="legend-item"><span class="dot tai"></span> Tài (11-17)</span>
+                <span class="legend-item"><span class="dot xiu"></span> Xỉu (4-10)</span>
+                <span class="legend-item"><span class="dot bao"></span> Bão (3 giống)</span>
+            </div>
+        </div>
+
+        <div class="bet-info-row">
+            <div class="info-block">
+                <div class="info-label">ĐANG CHỌN</div>
+                <div class="info-value" id="selected-amount-display">1</div>
+            </div>
+            <div class="info-block right">
+                <div class="info-label">SỐ DƯ TỐI ĐA</div>
+                <div class="info-value" id="max-display">...</div>
+            </div>
+        </div>
+
+        <div class="slider-wrapper">
+            <div class="slider-track-bg"></div>
+            <div class="slider-fill" id="slider-fill"></div>
+            <input type="range" id="bet-slider" min="1" max="1000" step="1" value="1" oninput="handleSliderInput(this)">
+            <div class="ticks">
+                <div class="tick" onclick="jumpTo(0)">MIN</div>
+                <div class="tick" onclick="jumpTo(0.25)">25%</div>
+                <div class="tick" onclick="jumpTo(0.5)">50%</div>
+                <div class="tick" onclick="jumpTo(0.75)">75%</div>
+                <div class="tick" onclick="jumpTo(1)">ALL</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Generate floating particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            if (!container) return;
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.width = (2 + Math.random() * 3) + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (12 + Math.random() * 10) + 's';
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+    </script>
+    <script src="taixiu.js"></script>
+    <script src="/js/ppz-sfx-engine.js"></script>
+    <script src="/js/sound-system.js"></script>
+    <script src="/js/notify-system.js"></script>
+    <script src="/js/tutorial-system.js"></script>
+    <script src="/js/chat-system.js"></script>
+    <script src="/js/live-feed.js"></script>
+
+    <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => { });</script>
+    <script>window.addEventListener('load', () => { const l = document.getElementById('ppz-loading'); if (l) { l.style.opacity = '0'; setTimeout(() => l.remove(), 500) } })</script>
+</body>
+
+</html>

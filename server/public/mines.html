@@ -1,0 +1,2308 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+    <meta name="description" content="💣 Mines - Dò mìn ăn tiền! Chọn ô an toàn để nhân đôi tại Pixel PlayZone">
+    <meta property="og:title" content="💣 Mines - Pixel PlayZone">
+    <meta property="og:description" content="Dò mìn ăn tiền! Chọn ô an toàn, nhân hệ số cược lên cao. Bạn dám thử?">
+    <meta property="og:image" content="/images/icons/icon-512.svg">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#030014">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💣</text></svg>">
+    <title>💣 MINES - Pixel PlayZone</title>
+    <link rel="stylesheet" href="css/fonts.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        :root {
+            --bg: #030014;
+            --surface: rgba(12, 6, 30, .96);
+            --surface2: rgba(20, 10, 45, .9);
+            --border: rgba(139, 92, 246, .2);
+            --accent: #8b5cf6;
+            --accent2: #ff00aa;
+            --gold: #FFD700;
+            --green: #00ff9d;
+            --red: #ff4757;
+            --text: #fff;
+            --muted: rgba(255, 255, 255, .55);
+            --radius: 14px;
+        }
+
+        html {
+            scroll-behavior: smooth
+        }
+
+        body {
+            font-family: 'DearPix', 'Rajdhani', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            min-height: 100dvh;
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeSpeed;
+        }
+
+        /* ══ BG ══ */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background-image:
+                linear-gradient(rgba(138, 43, 226, .04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(138, 43, 226, .04) 1px, transparent 1px);
+            background-size: 44px 44px;
+            will-change: transform;
+            animation: gridDrift 25s linear infinite;
+            contain: strict;
+        }
+
+        @keyframes gridDrift {
+            to {
+                transform: translate(44px, 44px)
+            }
+        }
+
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -1;
+            contain: strict;
+            /* Use opacity-based soft glow instead of expensive blur filter */
+            background: radial-gradient(circle, var(--orb-color) 0%, transparent 70%);
+        }
+
+        .orb1 {
+            --orb-color: rgba(188, 19, 254, .08);
+            width: 380px;
+            height: 380px;
+            top: -10%;
+            left: -10%;
+            will-change: transform;
+            animation: orbF 14s ease-in-out infinite alternate
+        }
+
+        .orb2 {
+            --orb-color: rgba(255, 0, 150, .06);
+            width: 320px;
+            height: 320px;
+            bottom: -8%;
+            right: -10%;
+            will-change: transform;
+            animation: orbF 14s ease-in-out 6s infinite alternate
+        }
+
+        @keyframes orbF {
+            0% {
+                transform: translate3d(0, 0, 0) scale(1)
+            }
+
+            100% {
+                transform: translate3d(30px, -25px, 0) scale(1.15)
+            }
+        }
+
+        /* ══ TOP BAR ══ */
+        .topbar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 18px;
+            height: 56px;
+            background: rgba(3, 0, 20, .85);
+            backdrop-filter: blur(20px) saturate(1.5);
+            border-bottom: 1px solid rgba(255, 255, 255, .04);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .back {
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid rgba(255, 255, 255, .08);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            text-decoration: none;
+            font-size: 15px;
+            transition: .25s;
+            letter-spacing: .3px;
+            font-family: 'DearPix', 'Orbitron', sans-serif;
+        }
+
+        .back:hover {
+            background: rgba(139, 92, 246, .15);
+            border-color: rgba(139, 92, 246, .3)
+        }
+
+        .bal {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, rgba(255, 215, 0, .1), rgba(255, 215, 0, .03));
+            border: 1px solid rgba(255, 215, 0, .25);
+            border-radius: 50px;
+            padding: 7px 18px;
+            font-weight: 700;
+            color: #ffd700;
+            font-size: 15px;
+            font-family: 'DearPix', 'Orbitron', sans-serif;
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .bal::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .35), transparent);
+            will-change: transform;
+            animation: shimmer 3.5s ease infinite;
+        }
+
+        .bal.bump {
+            animation: balBump .5s ease;
+        }
+
+        @keyframes balBump {
+            0% {
+                transform: scale(1)
+            }
+
+            30% {
+                transform: scale(1.12)
+            }
+
+            100% {
+                transform: scale(1)
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-200%)
+            }
+
+            100% {
+                transform: translateX(200%)
+            }
+        }
+
+        /* ══ MAIN WRAP ══ */
+        .wrap {
+            margin: 16px auto;
+            width: min(95vw, 500px)
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: 22px;
+            padding: 22px 18px;
+            border: 2px solid var(--border);
+            contain: layout style;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5), inset 0 1px 0 rgba(255, 255, 255, .05);
+        }
+
+        /* ══ TITLE ══ */
+        .title {
+            text-align: center;
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            margin-bottom: 4px;
+            background: linear-gradient(135deg, var(--gold), #FFA500, var(--gold));
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titleShift 3s ease infinite;
+        }
+
+        @keyframes titleShift {
+
+            0%,
+            100% {
+                background-position: 0% 50%
+            }
+
+            50% {
+                background-position: 100% 50%
+            }
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 16px;
+            letter-spacing: .8px
+        }
+
+        /* ══ SETUP ══ */
+        .setup {
+            display: flex;
+            flex-direction: column;
+            gap: 12px
+        }
+
+        .srow {
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .slbl {
+            font-weight: 800;
+            font-size: 14px;
+            color: var(--muted);
+            min-width: 65px;
+            text-transform: uppercase;
+            letter-spacing: .8px
+        }
+
+        .sctrl {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1
+        }
+
+        .cbtn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: 2px solid var(--border);
+            background: rgba(138, 43, 226, .12);
+            color: #fff;
+            font-size: 20px;
+            font-weight: 900;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: .2s;
+        }
+
+        .cbtn:hover {
+            background: rgba(138, 43, 226, .28);
+            border-color: var(--accent)
+        }
+
+        .cbtn:active {
+            transform: scale(.92)
+        }
+
+        .sval {
+            flex: 1;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--gold);
+            padding: 7px;
+            background: rgba(0, 0, 0, .35);
+            border-radius: 10px;
+            border: 1.5px solid rgba(255, 215, 0, .2);
+        }
+
+        /* Presets */
+        .presets {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            justify-content: center
+        }
+
+        .preset {
+            padding: 7px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: rgba(138, 43, 226, .08);
+            color: #ccc;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .preset:hover {
+            background: rgba(138, 43, 226, .22);
+            color: #fff
+        }
+
+        .preset.on {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-color: var(--accent);
+            box-shadow: 0 3px 12px rgba(188, 19, 254, .45);
+            color: #fff;
+        }
+
+        /* ══ MULT TABLE ══ */
+        .mtable {
+            margin-top: 6px;
+            padding: 12px;
+            background: rgba(0, 0, 0, .2);
+            border-radius: 12px;
+            border: 1.5px solid rgba(255, 255, 255, .04)
+        }
+
+        .mt-title {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--muted);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 6px
+        }
+
+        .mt-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 8px;
+            font-size: 14px;
+            color: var(--muted)
+        }
+
+        .mt-row .mv {
+            color: var(--gold);
+            font-weight: 800
+        }
+
+        /* ══ BUTTONS ══ */
+        .abtn {
+            width: 100%;
+            padding: 15px;
+            margin-top: 12px;
+            border: none;
+            border-radius: var(--radius);
+            color: #fff;
+            font-family: 'DearPix', 'Rajdhani', sans-serif;
+            font-size: 17px;
+            font-weight: 900;
+            cursor: pointer;
+            letter-spacing: 1.5px;
+            transition: .25s;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+        }
+
+        .abtn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .18), transparent);
+            animation: shimmer 2.8s ease infinite;
+        }
+
+        .abtn:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+            transform: none !important
+        }
+
+        .btn-go {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            box-shadow: 0 5px 22px rgba(188, 19, 254, .4)
+        }
+
+        .btn-go:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(188, 19, 254, .55)
+        }
+
+        .btn-cash {
+            background: linear-gradient(135deg, #00b894, #00ff9d);
+            color: #000;
+            box-shadow: 0 5px 22px rgba(0, 255, 157, .3)
+        }
+
+        .btn-cash:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 255, 157, .5)
+        }
+
+        .btn-cash .sub {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+            opacity: .75;
+            margin-top: 2px
+        }
+
+        /* ══ GRID ══ */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 7px;
+            margin: 16px 0
+        }
+
+        .cell {
+            aspect-ratio: 1;
+            border-radius: 11px;
+            border: 2.5px solid var(--border);
+            background: linear-gradient(145deg, rgba(28, 8, 52, .92), rgba(16, 4, 32, .96));
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform .2s cubic-bezier(.175, .885, .32, 1.275), border-color .2s ease, box-shadow .2s ease;
+            position: relative;
+            overflow: hidden;
+            contain: layout style;
+            transform: translateZ(0);
+        }
+
+        /* Shimmer sweep on unrevealed cells - optimized with transform */
+        .cell::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 8px;
+            background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, .07) 50%, transparent 65%);
+            will-change: transform;
+            animation: cellShimmer 4s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes cellShimmer {
+            0% {
+                transform: translateX(-100%)
+            }
+
+            100% {
+                transform: translateX(100%)
+            }
+        }
+
+        .cell::after {
+            content: '?';
+            position: absolute;
+            font-size: 18px;
+            font-weight: 900;
+            color: rgba(138, 43, 226, .22);
+            transition: all .3s ease;
+            z-index: 1;
+        }
+
+        .cell:hover:not(.open):not(.off) {
+            border-color: var(--accent);
+            transform: translateY(-3px) scale(1.06) translateZ(0);
+            box-shadow: 0 8px 20px rgba(138, 43, 226, .35);
+            background: linear-gradient(145deg, rgba(45, 14, 75, .9), rgba(28, 8, 52, .95));
+        }
+
+        .cell:hover:not(.open):not(.off)::after {
+            color: rgba(255, 255, 255, .5);
+            transform: scale(1.3);
+        }
+
+        .cell:active:not(.open):not(.off) {
+            transform: scale(.9) translateZ(0);
+            transition: transform .08s;
+        }
+
+        .cell.off {
+            cursor: default;
+            pointer-events: none
+        }
+
+        .cell.open {
+            cursor: default
+        }
+
+        .cell.open::after {
+            content: none
+        }
+
+        .cell.open::before {
+            display: none
+        }
+
+        /* Instant pending state while waiting for server */
+        .cell.pending {
+            border-color: rgba(255, 255, 255, .3);
+            background: rgba(40, 15, 70, .9);
+            animation: pendingFlip .25s ease-out;
+        }
+
+        .cell.pending .ico {
+            opacity: .6;
+            font-size: 18px;
+            animation: pendingSpin .6s linear infinite;
+        }
+
+        @keyframes pendingFlip {
+            0% {
+                transform: scale(.85) rotateY(90deg) translateZ(0)
+            }
+
+            100% {
+                transform: scale(1) rotateY(0) translateZ(0)
+            }
+        }
+
+        @keyframes pendingSpin {
+            to {
+                transform: rotate(360deg) translateZ(0)
+            }
+        }
+
+        .cell .ico {
+            font-size: 26px;
+            z-index: 2;
+            line-height: 1;
+            opacity: 0
+        }
+
+        .cell.open .ico {
+            opacity: 1
+        }
+
+        /* Heartbeat pulse on unrevealed cells during tension - optimized */
+        .t-med .cell:not(.open):not(.off) {
+            animation: heartbeat 2.2s ease-in-out infinite;
+        }
+
+        .t-high .cell:not(.open):not(.off) {
+            animation: heartbeat 1.4s ease-in-out infinite;
+            border-color: rgba(255, 140, 0, .25);
+        }
+
+        .t-max .cell:not(.open):not(.off) {
+            animation: heartbeat 0.85s ease-in-out infinite;
+            border-color: rgba(255, 71, 87, .35);
+        }
+
+        @keyframes heartbeat {
+
+            0%,
+            100% {
+                transform: scale(1) translateZ(0)
+            }
+
+            30% {
+                transform: scale(1.04) translateZ(0)
+            }
+
+            60% {
+                transform: scale(1) translateZ(0)
+            }
+        }
+
+        /* Gem */
+        .cell.gem {
+            border-color: rgba(0, 255, 157, .55);
+            background: radial-gradient(circle, rgba(0, 110, 60, .45), rgba(0, 45, 25, .55));
+            box-shadow: 0 0 14px rgba(0, 255, 157, .12);
+            animation: pop .22s cubic-bezier(.175, .885, .32, 1.275);
+        }
+
+        /* Gem ring burst on reveal */
+        .cell.gem::before {
+            display: block !important;
+            content: '' !important;
+            position: absolute;
+            inset: -4px;
+            border-radius: 14px;
+            border: 2px solid rgba(0, 255, 157, .6);
+            animation: ringBurst .4s ease-out forwards;
+            background: none;
+            pointer-events: none;
+        }
+
+        @keyframes ringBurst {
+            0% {
+                transform: scale(0.5);
+                opacity: 1;
+                border-width: 3px
+            }
+
+            100% {
+                transform: scale(1.8);
+                opacity: 0;
+                border-width: 0.5px
+            }
+        }
+
+        .cell.gem .ico {
+            animation: gemBob 2.2s ease-in-out infinite
+        }
+
+        @keyframes gemBob {
+
+            0%,
+            100% {
+                transform: translateY(0) translateZ(0)
+            }
+
+            50% {
+                transform: translateY(-3px) translateZ(0)
+            }
+        }
+
+        /* Mine hit */
+        .cell.boom {
+            border-color: rgba(255, 71, 87, .85);
+            background: radial-gradient(circle, rgba(170, 0, 0, .55), rgba(70, 0, 0, .65));
+            box-shadow: 0 0 20px rgba(255, 71, 87, .4);
+            animation: pop .4s cubic-bezier(.175, .885, .32, 1.275);
+        }
+
+        /* Explosion ripple wave */
+        .cell.boom::before {
+            display: block !important;
+            content: '' !important;
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 71, 87, .7);
+            animation: explosionRipple .5s ease-out forwards;
+            background: none;
+            pointer-events: none;
+        }
+
+        @keyframes explosionRipple {
+            0% {
+                transform: scale(0.3) translateZ(0);
+                opacity: 1
+            }
+
+            100% {
+                transform: scale(2.2) translateZ(0);
+                opacity: 0
+            }
+        }
+
+        /* Mine revealed after game-over */
+        .cell.show {
+            border-color: rgba(255, 71, 87, .3);
+            background: rgba(55, 0, 0, .35)
+        }
+
+        .cell.show .ico {
+            opacity: .55
+        }
+
+        /* Unrevealed safe after game-over */
+        .cell.dim {
+            border-color: rgba(0, 255, 157, .15);
+            background: rgba(0, 30, 15, .25)
+        }
+
+        .cell.dim .ico {
+            opacity: .25
+        }
+
+        @keyframes pop {
+            0% {
+                transform: scale(0) rotateY(90deg) translateZ(0)
+            }
+
+            50% {
+                transform: scale(1.08) rotateY(0) translateZ(0)
+            }
+
+            100% {
+                transform: scale(1) rotateY(0) translateZ(0)
+            }
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0)
+            }
+
+            20% {
+                transform: translateX(-6px)
+            }
+
+            40% {
+                transform: translateX(6px)
+            }
+
+            60% {
+                transform: translateX(-4px)
+            }
+
+            80% {
+                transform: translateX(4px)
+            }
+        }
+
+        @keyframes gemPulse {
+            0% {
+                box-shadow: 0 0 0 rgba(0, 255, 157, 0)
+            }
+
+            50% {
+                box-shadow: 0 0 22px rgba(0, 255, 157, .45)
+            }
+
+            100% {
+                box-shadow: 0 0 0 rgba(0, 255, 157, 0)
+            }
+        }
+
+        /* ══ INFO BAR ══ */
+        .info {
+            display: flex;
+            gap: 6px;
+            margin-top: 12px
+        }
+
+        .icard {
+            flex: 1;
+            text-align: center;
+            padding: 8px 4px;
+            background: rgba(0, 0, 0, .28);
+            border-radius: 10px;
+            border: 1.5px solid rgba(255, 255, 255, .05);
+        }
+
+        .ilbl {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            margin-bottom: 1px
+        }
+
+        .ival {
+            font-size: 15px;
+            font-weight: 900
+        }
+
+        .ival.c-gold {
+            color: var(--gold);
+            transition: all .3s ease;
+        }
+
+        .ival.c-gold.glow {
+            text-shadow: 0 0 12px rgba(255, 215, 0, .6);
+            transform: scale(1.15);
+        }
+
+        .ival.c-green {
+            color: var(--green);
+            transition: all .3s ease;
+        }
+
+        .ival.c-green.glow {
+            text-shadow: 0 0 12px rgba(0, 255, 157, .6);
+            transform: scale(1.15);
+        }
+
+        .ival.c-red {
+            color: var(--red)
+        }
+
+        /* ══ RESULT ══ */
+        .rmsg {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: 900;
+            font-size: 15px;
+            min-height: 24px;
+            animation: fadeUp .25s ease
+        }
+
+        @keyframes fadeUp {
+            0% {
+                transform: translateY(6px);
+                opacity: 0
+            }
+
+            100% {
+                transform: translateY(0);
+                opacity: 1
+            }
+        }
+
+        .rmsg.win {
+            color: var(--green);
+            text-shadow: 0 0 12px rgba(0, 255, 157, .35)
+        }
+
+        .rmsg.lose {
+            color: var(--red);
+            text-shadow: 0 0 12px rgba(255, 71, 87, .25)
+        }
+
+        /* ══ TENSION ══ */
+        .card.t-med {
+            border-color: rgba(255, 140, 0, .2);
+        }
+
+        .card.t-high {
+            border-color: rgba(255, 140, 0, .45);
+        }
+
+        .card.t-max {
+            animation: tShake .5s ease-in-out infinite;
+            border-color: rgba(255, 71, 87, .5);
+        }
+
+        @keyframes tShake {
+
+            0%,
+            100% {
+                transform: translateX(0) translateZ(0)
+            }
+
+            25% {
+                transform: translateX(-1px) translateZ(0)
+            }
+
+            75% {
+                transform: translateX(1px) translateZ(0)
+            }
+        }
+
+        /* ══ VIGNETTE OVERLAY ══ */
+        .vignette {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0;
+            transition: opacity .8s ease;
+            contain: strict;
+        }
+
+        .vignette.v-med {
+            opacity: 1;
+            background: radial-gradient(ellipse at center, transparent 55%, rgba(255, 140, 0, .08) 100%);
+        }
+
+        .vignette.v-high {
+            opacity: 1;
+            background: radial-gradient(ellipse at center, transparent 45%, rgba(255, 71, 87, .12) 100%);
+        }
+
+        .vignette.v-max {
+            opacity: 1;
+            background: radial-gradient(ellipse at center, transparent 35%, rgba(255, 0, 0, .18) 100%);
+        }
+
+        /* ══ STREAK COUNTER ══ */
+        .streak-counter {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            z-index: 60;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            animation: streakIn .4s cubic-bezier(.175, .885, .32, 1.275);
+            contain: layout style;
+            will-change: transform;
+        }
+
+        .streak-counter.on {
+            display: flex
+        }
+
+        .streak-num {
+            font-size: 38px;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--gold), #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            text-shadow: none;
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, .4));
+        }
+
+        .streak-lbl {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--gold);
+            font-weight: 800;
+            opacity: .7;
+        }
+
+        @keyframes streakIn {
+            0% {
+                transform: scale(0) rotate(-20deg);
+                opacity: 0
+            }
+
+            100% {
+                transform: scale(1) rotate(0);
+                opacity: 1
+            }
+        }
+
+        .streak-counter.bump {
+            animation: streakBump .35s ease;
+        }
+
+        @keyframes streakBump {
+            0% {
+                transform: scale(1)
+            }
+
+            50% {
+                transform: scale(1.35)
+            }
+
+            100% {
+                transform: scale(1)
+            }
+        }
+
+        /* ══ FLOATING PARTICLES ══ */
+        .particle-container {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 55;
+            overflow: hidden;
+            contain: strict;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        @keyframes particleRise {
+            0% {
+                opacity: 1;
+                transform: translate3d(0, 0, 0) scale(1)
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate3d(var(--dx), -120px, 0) scale(0)
+            }
+        }
+
+        /* ══ CASHOUT PULSE ══ */
+        .btn-cash.pulse {
+            animation: cashPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes cashPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 5px 22px rgba(0, 255, 157, .3);
+            }
+
+            50% {
+                box-shadow: 0 5px 35px rgba(0, 255, 157, .6), 0 0 50px rgba(0, 255, 157, .15);
+                transform: translateY(-1px);
+            }
+        }
+
+        /* Multiplier pop text */
+        .mult-pop {
+            position: fixed;
+            z-index: 200;
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--gold);
+            text-shadow: 0 0 15px rgba(255, 215, 0, .5);
+            pointer-events: none;
+            animation: multPop 1.2s ease-out forwards;
+        }
+
+        @keyframes multPop {
+            0% {
+                transform: translateY(0) scale(0.5);
+                opacity: 0
+            }
+
+            20% {
+                transform: translateY(-10px) scale(1.2);
+                opacity: 1
+            }
+
+            100% {
+                transform: translateY(-60px) scale(0.8);
+                opacity: 0
+            }
+        }
+
+        /* ══ FLASH ══ */
+        @keyframes flashOut {
+            0% {
+                opacity: 1
+            }
+
+            100% {
+                opacity: 0
+            }
+        }
+
+        /* ══ HISTORY ══ */
+        .hist {
+            margin: 18px auto 30px;
+            width: min(95vw, 500px);
+            background: var(--surface);
+            border-radius: 18px;
+            padding: 16px;
+            border: 2px solid var(--border);
+        }
+
+        .hist-t {
+            font-size: 13px;
+            font-weight: 900;
+            color: var(--gold);
+            margin-bottom: 10px;
+            text-align: center;
+            letter-spacing: 1.5px;
+            text-transform: uppercase
+        }
+
+        .hist-empty {
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+            padding: 10px
+        }
+
+        .hi {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 7px 10px;
+            font-size: 12.5px;
+            border-bottom: 1px solid rgba(255, 255, 255, .03);
+            border-radius: 5px;
+            transition: .15s;
+            animation: fadeUp .25s ease;
+        }
+
+        .hi:hover {
+            background: rgba(255, 255, 255, .03)
+        }
+
+        .hi:last-child {
+            border: none
+        }
+
+        .hi-l {
+            display: flex;
+            align-items: center;
+            gap: 7px
+        }
+
+        .hi-meta {
+            font-size: 11px;
+            color: var(--muted)
+        }
+
+        .hi-mult {
+            font-size: 11.5px;
+            color: var(--gold);
+            font-weight: 700
+        }
+
+        .hi-win {
+            color: var(--green);
+            font-weight: 900
+        }
+
+        .hi-lose {
+            color: var(--red);
+            font-weight: 700
+        }
+
+        /* ══ OVERLAY ══ */
+        .ov {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .88);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .ov.on {
+            display: flex
+        }
+
+        .ov-box {
+            background: linear-gradient(135deg, #1a0033, #2a0a4e);
+            border: 3px solid var(--gold);
+            border-radius: 22px;
+            padding: 36px;
+            text-align: center;
+            box-shadow: 0 0 80px rgba(255, 215, 0, .25), inset 0 0 40px rgba(255, 215, 0, .05);
+            max-width: 360px;
+            width: 90vw;
+            animation: ovPop .5s cubic-bezier(.175, .885, .32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Gold shimmer sweep on overlay - optimized */
+        .ov-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(255, 215, 0, .08), transparent, rgba(255, 215, 0, .04), transparent);
+            will-change: transform;
+            animation: ovSpin 4s linear infinite;
+        }
+
+        @keyframes ovSpin {
+            0% {
+                transform: rotate(0deg) translateZ(0)
+            }
+
+            100% {
+                transform: rotate(360deg) translateZ(0)
+            }
+        }
+
+        @keyframes ovPop {
+            0% {
+                transform: scale(0) rotate(-5deg);
+                opacity: 0
+            }
+
+            100% {
+                transform: scale(1) rotate(0);
+                opacity: 1
+            }
+        }
+
+        .ov-box h2 {
+            font-size: 32px;
+            color: var(--gold);
+            margin-bottom: 6px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 0 20px rgba(255, 215, 0, .4);
+        }
+
+        .ov-amt {
+            font-size: 42px;
+            color: var(--green);
+            font-weight: 900;
+            text-shadow: 0 0 25px rgba(0, 255, 157, .45);
+            position: relative;
+            z-index: 1;
+            animation: amtPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes amtPulse {
+
+            0%,
+            100% {
+                text-shadow: 0 0 25px rgba(0, 255, 157, .45)
+            }
+
+            50% {
+                text-shadow: 0 0 40px rgba(0, 255, 157, .7), 0 0 60px rgba(0, 255, 157, .2)
+            }
+        }
+
+        .ov-det {
+            font-size: 13px;
+            color: var(--muted);
+            margin: 10px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .ov-btn {
+            margin-top: 14px;
+            padding: 14px 36px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--gold), #FFA500);
+            color: #000;
+            font-weight: 900;
+            font-size: 15px;
+            cursor: pointer;
+            transition: .25s;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 4px 18px rgba(255, 215, 0, .3);
+        }
+
+        .ov-btn:hover {
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 6px 25px rgba(255, 215, 0, .55)
+        }
+
+        .ov-btn:active {
+            transform: scale(0.96);
+        }
+
+        /* ══ CONFETTI ══ */
+        .confetti {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 200;
+            contain: strict;
+        }
+
+        .cf {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            top: -12px;
+            will-change: transform;
+            animation: cfDrop linear forwards
+        }
+
+        @keyframes cfDrop {
+            0% {
+                transform: translateY(0) rotate(0) translateZ(0);
+                opacity: 1
+            }
+
+            100% {
+                transform: translateY(100vh) rotate(720deg) translateZ(0);
+                opacity: 0
+            }
+        }
+
+        /* ══ RESPONSIVE ══ */
+        @media(max-width:500px) {
+            .card {
+                padding: 16px 12px
+            }
+
+            .cell {
+                border-radius: 9px;
+                border-width: 2px
+            }
+
+            .cell::after {
+                font-size: 15px
+            }
+
+            .cell .ico {
+                font-size: 22px
+            }
+
+            .grid {
+                gap: 5px
+            }
+
+            .title {
+                font-size: 22px
+            }
+
+            .abtn {
+                font-size: 15px;
+                padding: 13px
+            }
+
+            .ival {
+                font-size: 13px
+            }
+        }
+
+        @media(max-width:370px) {
+            .grid {
+                gap: 4px
+            }
+
+            .cell {
+                border-radius: 7px
+            }
+
+            .cell::after {
+                font-size: 13px
+            }
+
+            .cell .ico {
+                font-size: 19px
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(138, 43, 226, .25);
+            border-radius: 3px
+        }
+
+        /* ══ HISTORY OPTIMIZATION ══ */
+        .hist {
+            contain: layout style;
+            content-visibility: auto;
+            contain-intrinsic-size: 0 300px;
+        }
+
+        /* ══ REDUCED MOTION ══ */
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+
+            .bg-grid,
+            .orb {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <noscript>
+        <div
+            style="background:#0a0015;color:#fff;padding:40px;text-align:center;font-family:sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;">
+            <h2>⚠️ Bạn cần bật JavaScript để chơi Pixel PlayZone!</h2>
+        </div>
+    </noscript>
+    <div id="ppz-loading"
+        style="position:fixed;inset:0;background:#0a0015;z-index:99999;display:flex;justify-content:center;align-items:center;flex-direction:column;transition:opacity .5s">
+        <div
+            style="width:60px;height:60px;border:3px solid transparent;border-top-color:#a855f7;border-bottom-color:#ec4899;border-radius:50%;animation:ppzSpin 1s linear infinite">
+        </div>
+        <p style="color:#a855f7;margin-top:16px;font-size:14px;letter-spacing:4px">LOADING</p>
+    </div>
+    <style>
+        @keyframes ppzSpin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+    </style>
+    <div class="bg-grid"></div>
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+        <a href="/" class="back">← LOBBY</a>
+        <div id="ppz-toolbar" style="display:flex;align-items:center;gap:6px"></div>
+        <div class="bal">💰 <span id="bal">0</span> $</div>
+    </div>
+
+    <div class="wrap">
+        <div class="card" id="gameCard">
+
+            <div class="title">💣 MINES</div>
+            <div class="subtitle">Mở ô · Tránh bom · Rút tiền bất cứ lúc nào</div>
+
+            <!-- ═══ SETUP ═══ -->
+            <div id="setup" class="setup">
+
+                <div class="srow">
+                    <span class="slbl">Cược:</span>
+                    <div class="sctrl">
+                        <button class="cbtn" id="betDown">−</button>
+                        <div class="sval" id="betVal">1,000</div>
+                        <button class="cbtn" id="betUp">+</button>
+                    </div>
+                </div>
+                <div class="presets" id="betPresets">
+                    <button class="preset" data-v="500">500</button>
+                    <button class="preset on" data-v="1000">1K</button>
+                    <button class="preset" data-v="5000">5K</button>
+                    <button class="preset" data-v="10000">10K</button>
+                    <button class="preset" data-v="50000">50K</button>
+                </div>
+
+                <div class="srow">
+                    <span class="slbl">Số mìn:</span>
+                    <div class="presets" id="minePresets">
+                        <button class="preset" data-v="1">1</button>
+                        <button class="preset" data-v="3">3</button>
+                        <button class="preset on" data-v="5">5</button>
+                        <button class="preset" data-v="10">10</button>
+                        <button class="preset" data-v="15">15</button>
+                        <button class="preset" data-v="20">20</button>
+                        <button class="preset" data-v="24">24</button>
+                    </div>
+                </div>
+
+                <div class="mtable">
+                    <div class="mt-title" id="mtTitle">Hệ số nhân (5 mìn)</div>
+                    <div id="mtRows"></div>
+                </div>
+
+                <button class="abtn btn-go" id="startBtn">💣 BẮT ĐẦU</button>
+            </div>
+
+            <!-- ═══ GAME ═══ -->
+            <div id="game" style="display:none">
+
+                <div class="grid" id="grid"></div>
+
+                <div class="info">
+                    <div class="icard">
+                        <div class="ilbl">💣 Mìn</div>
+                        <div class="ival c-red" id="iMines">5</div>
+                    </div>
+                    <div class="icard">
+                        <div class="ilbl">📊 Hệ số</div>
+                        <div class="ival c-gold" id="iMult">1.00x</div>
+                    </div>
+                    <div class="icard">
+                        <div class="ilbl">💰 Thắng</div>
+                        <div class="ival c-green" id="iWin">0 $</div>
+                    </div>
+                    <div class="icard">
+                        <div class="ilbl">⏭ Tiếp</div>
+                        <div class="ival c-gold" id="iNext">—</div>
+                    </div>
+                </div>
+
+                <button class="abtn btn-cash" id="cashBtn" style="display:none">
+                    💰 RÚT TIỀN <span class="sub" id="cashSub"></span>
+                </button>
+
+                <div class="rmsg" id="rmsg"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="hist">
+        <div class="hist-t">📜 Lịch Sử</div>
+        <div id="histList">
+            <div class="hist-empty">Chưa có lượt chơi nào</div>
+        </div>
+    </div>
+
+    <!-- WIN OVERLAY -->
+    <div class="ov" id="winOv">
+        <div class="ov-box">
+            <h2>🎉 THẮNG LỚN!</h2>
+            <div class="ov-amt" id="ovAmt"></div>
+            <div class="ov-det" id="ovDet"></div>
+            <button class="ov-btn" id="ovClose">Chơi Tiếp</button>
+        </div>
+    </div>
+    <div class="confetti" id="confetti"></div>
+    <div class="vignette" id="vignette"></div>
+    <div class="streak-counter" id="streakCounter">
+        <div class="streak-num" id="streakNum">0</div>
+        <div class="streak-lbl">STREAK 🔥</div>
+    </div>
+    <div class="particle-container" id="particles"></div>
+
+    <script>
+        (function () {
+            'use strict';
+
+            /* ═══════════════════════════════════════════════
+               STATE
+               ═══════════════════════════════════════════════ */
+            let balance = 0;
+            let bet = 1000;
+            let mines = 5;
+            let active = false;
+            let revealed = 0;
+            let mult = 1;
+            let win = 0;
+            let streak = 0;
+            let busy = false; // prevent double-clicks
+
+            /* ═══════════════════════════════════════════════
+               DOM REFS
+               ═══════════════════════════════════════════════ */
+            const $ = id => document.getElementById(id);
+            const balEl = $('bal');
+            const setupEl = $('setup');
+            const gameEl = $('game');
+            const gridEl = $('grid');
+            const startBtn = $('startBtn');
+            const cashBtn = $('cashBtn');
+            const cashSub = $('cashSub');
+            const rmsgEl = $('rmsg');
+            const iMines = $('iMines');
+            const iMult = $('iMult');
+            const iWin = $('iWin');
+            const iNext = $('iNext');
+            const betVal = $('betVal');
+            const mtTitle = $('mtTitle');
+            const mtRows = $('mtRows');
+            const histList = $('histList');
+            const winOv = $('winOv');
+            const ovAmt = $('ovAmt');
+            const ovDet = $('ovDet');
+            const gameCard = $('gameCard');
+            const confettiEl = $('confetti');
+            const vignetteEl = $('vignette');
+            const streakCounterEl = $('streakCounter');
+            const streakNumEl = $('streakNum');
+            const particlesEl = $('particles');
+
+            /* ═══════════════════════════════════════════════
+               AUDIO (Optimized pool)
+               ═══════════════════════════════════════════════ */
+            const sfxFiles = {
+                click: '/sounds/click.mp3',
+                tileClick: '/sounds/mines/tile_click.mp3',
+                tileClick2: '/sounds/mines/tile_click2.mp3',
+                flip: '/sounds/mines/flip.mp3',
+                chip: '/sounds/mines/chip.mp3',
+                gem: '/sounds/mines/gem_reveal.mp3',
+                gem2: '/sounds/mines/gem_reveal2.mp3',
+                boom: '/sounds/mines/boom.mp3',
+                cashout: '/sounds/mines/cashout.mp3',
+            };
+            const sfxVol = { click: .4, tileClick: .3, tileClick2: .3, flip: .5, chip: .5, gem: .5, gem2: .5, boom: .7, cashout: .8 };
+
+            // Audio pool: keep 3 clones per sound for overlap
+            const audioPool = {};
+            const POOL_SIZE = 3;
+            for (const [k, v] of Object.entries(sfxFiles)) {
+                audioPool[k] = [];
+                for (let i = 0; i < POOL_SIZE; i++) {
+                    const a = new Audio();
+                    a.preload = 'auto';
+                    a.volume = sfxVol[k] || .5;
+                    a.src = v;
+                    audioPool[k].push(a);
+                }
+            }
+
+            function play(name) {
+                // Try SFX engine first
+                if (window.SFX && window.SFX.play) { try { window.SFX.play(name); return; } catch(e) {} }
+                // Respect global sound settings
+                if (window.PPZSound) { const gs = window.PPZSound.getSettings(); if (!gs.sfxOn) return; }
+                const pool = audioPool[name];
+                if (!pool) return;
+                const globalVol = window.PPZSound ? window.PPZSound.getSettings().sfxVol : 1;
+                // find a free audio element (paused or ended)
+                const a = pool.find(s => s.paused || s.ended) || pool[0];
+                a.volume = (sfxVol[name] || .5) * globalVol;
+                try { a.currentTime = 0; a.play().catch(() => { }); } catch (e) { }
+            }
+
+            // Web Audio for pitch-shifted streak gems
+            let actx = null;
+            let gemBuffer = null;
+
+            function initAudioCtx() {
+                if (actx) return;
+                try {
+                    actx = new (window.AudioContext || window.webkitAudioContext)();
+                    fetch('/sounds/mines/gem_reveal.mp3')
+                        .then(r => r.arrayBuffer())
+                        .then(b => actx.decodeAudioData(b))
+                        .then(d => { gemBuffer = d; })
+                        .catch(() => { });
+                } catch (e) { }
+            }
+            document.addEventListener('click', initAudioCtx, { once: true });
+            document.addEventListener('touchstart', initAudioCtx, { once: true });
+
+            function playGemStreak(n) {
+                // SFX engine handles pitch natively
+                if (window.SFX && window.SFX.play) { const p = 1 + Math.min(n, 18) * 0.028; try { window.SFX.play('mines_gem', { pitch: p }); return; } catch(e) {} }
+                if (!actx || !gemBuffer) { play(n % 2 ? 'gem' : 'gem2'); return; }
+                try {
+                    const src = actx.createBufferSource();
+                    const gain = actx.createGain();
+                    src.buffer = gemBuffer;
+                    src.playbackRate.value = 1 + Math.min(n, 18) * 0.028;
+                    gain.gain.value = .5 + Math.min(n, 10) * .025;
+                    src.connect(gain);
+                    gain.connect(actx.destination);
+                    src.start(0);
+                } catch (e) { play('gem'); }
+            }
+
+            function vib(ms) { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) { } }
+
+            /* ═══════════════════════════════════════════════
+               PARTICLE EFFECTS (Optimized)
+               ═══════════════════════════════════════════════ */
+            const MAX_PARTICLES = 50;
+            let particleCleanupTimer = 0;
+
+            function spawnParticles(cell, color, count) {
+                // Limit particle count for performance
+                count = Math.min(count, 12);
+                if (particlesEl.children.length > MAX_PARTICLES) {
+                    // Batch remove old particles
+                    const toRemove = particlesEl.children.length - MAX_PARTICLES + count;
+                    for (let i = 0; i < toRemove; i++) particlesEl.removeChild(particlesEl.firstChild);
+                }
+                const rect = cell.getBoundingClientRect();
+                const cx = rect.left + rect.width / 2;
+                const cy = rect.top + rect.height / 2;
+                const frag = document.createDocumentFragment();
+                for (let i = 0; i < count; i++) {
+                    const p = document.createElement('div');
+                    p.className = 'particle';
+                    const size = 3 + Math.random() * 4;
+                    const angle = (Math.PI * 2 * i) / count + (Math.random() - .5) * .5;
+                    const dist = 25 + Math.random() * 40;
+                    const dx = Math.cos(angle) * dist;
+                    const dur = .4 + Math.random() * .4;
+                    p.style.cssText = `left:${cx}px;top:${cy}px;width:${size}px;height:${size}px;background:${color};--dx:${dx}px;animation:particleRise ${dur}s ease-out forwards`;
+                    frag.appendChild(p);
+                }
+                particlesEl.appendChild(frag);
+                // Debounced cleanup
+                clearTimeout(particleCleanupTimer);
+                particleCleanupTimer = setTimeout(() => { particlesEl.innerHTML = ''; }, 1200);
+            }
+
+            function showMultPop(cell, text) {
+                const rect = cell.getBoundingClientRect();
+                const pop = document.createElement('div');
+                pop.className = 'mult-pop';
+                pop.textContent = text;
+                pop.style.left = rect.left + rect.width / 2 - 30 + 'px';
+                pop.style.top = rect.top - 10 + 'px';
+                document.body.appendChild(pop);
+                setTimeout(() => pop.remove(), 1300);
+            }
+
+            function updateStreakUI(n) {
+                if (n >= 2) {
+                    streakNumEl.textContent = n;
+                    streakCounterEl.classList.add('on');
+                    // trigger bump animation without force reflow
+                    streakCounterEl.classList.remove('bump');
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(() => {
+                            streakCounterEl.classList.add('bump');
+                        });
+                    });
+                } else if (n <= 0) {
+                    streakCounterEl.classList.remove('on');
+                }
+            }
+
+            function updateVignette(remain, total) {
+                vignetteEl.classList.remove('v-med', 'v-high', 'v-max');
+                const r = remain / total;
+                if (r <= .15) vignetteEl.classList.add('v-max');
+                else if (r <= .3) vignetteEl.classList.add('v-high');
+                else if (r <= .5) vignetteEl.classList.add('v-med');
+            }
+
+            function clearVignette() {
+                vignetteEl.classList.remove('v-med', 'v-high', 'v-max');
+            }
+
+            /* ═══════════════════════════════════════════════
+               API HELPERS
+               ═══════════════════════════════════════════════ */
+            async function api(path, body) {
+                const opt = { method: 'POST', headers: { 'Content-Type': 'application/json' } };
+                if (body) opt.body = JSON.stringify(body);
+                const r = await fetch(path, opt);
+                return r.json();
+            }
+
+            /* ═══════════════════════════════════════════════
+               BALANCE
+               ═══════════════════════════════════════════════ */
+            async function loadBalance() {
+                try {
+                    const r = await fetch('/api/me');
+                    if (!r.ok) { window.location.href = '/'; return; }
+                    const d = await r.json();
+                    balance = Number(d.balance) || 0;
+                    animBal(balance);
+                } catch (e) { console.error(e); }
+            }
+
+            let balAnimId = 0;
+            function animBal(target) {
+                const old = parseInt(balEl.textContent.replace(/,/g, '')) || 0;
+                const diff = target - old;
+                if (!diff) { balEl.textContent = target.toLocaleString(); return; }
+                // bump balance pill on change - no force reflow
+                const pill = balEl.closest('.bal');
+                if (pill) {
+                    pill.classList.remove('bump');
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(() => {
+                            pill.classList.add('bump');
+                            setTimeout(() => pill.classList.remove('bump'), 550);
+                        });
+                    });
+                }
+                cancelAnimationFrame(balAnimId);
+                const dur = 350, t0 = performance.now();
+                (function tick(now) {
+                    const p = Math.min((now - t0) / dur, 1);
+                    const ease = 1 - Math.pow(1 - p, 3);
+                    balEl.textContent = Math.round(old + diff * ease).toLocaleString();
+                    if (p < 1) balAnimId = requestAnimationFrame(tick);
+                })(t0);
+            }
+
+            /* ═══════════════════════════════════════════════
+               BET / MINE CONTROLS
+               ═══════════════════════════════════════════════ */
+            $('betDown').onclick = () => { play('click'); vib(10); bet = Math.max(500, bet - 500); updBet(); };
+            $('betUp').onclick = () => { play('click'); vib(10); bet = Math.min(100000, bet + 500); updBet(); };
+
+            $('betPresets').onclick = e => {
+                const b = e.target.closest('.preset'); if (!b) return;
+                play('click'); vib(10); bet = +b.dataset.v; updBet();
+            };
+            $('minePresets').onclick = e => {
+                const b = e.target.closest('.preset'); if (!b) return;
+                play('click'); vib(10); mines = +b.dataset.v; updMines();
+            };
+
+            function updBet() {
+                betVal.textContent = bet.toLocaleString();
+                $('betPresets').querySelectorAll('.preset').forEach(b => b.classList.toggle('on', +b.dataset.v === bet));
+            }
+            function updMines() {
+                $('minePresets').querySelectorAll('.preset').forEach(b => b.classList.toggle('on', +b.dataset.v === mines));
+                updMultTable();
+            }
+
+            /* ═══════════════════════════════════════════════
+               MULTIPLIER PREVIEW TABLE
+               ═══════════════════════════════════════════════ */
+            const MCAP = { 1: 25, 2: 80, 3: 250, 4: 500, 5: 1000, 6: 1500, 7: 2000, 8: 2500, 9: 3000, 10: 5000, 11: 5000, 12: 6000, 13: 7000, 14: 8000, 15: 10000, 16: 12000, 17: 14000, 18: 16000, 19: 18000, 20: 25000, 21: 30000, 22: 40000, 23: 50000, 24: 25 };
+            function calcMult(m, r) {
+                const s = 25 - m; let v = .97;
+                for (let i = 0; i < r; i++) v *= (25 - i) / (s - i);
+                v = Math.round(v * 100) / 100;
+                return Math.min(v, MCAP[m] || 5000);
+            }
+
+            function updMultTable() {
+                const safe = 25 - mines;
+                mtTitle.textContent = `Hệ số nhân (${mines} mìn)`;
+                const steps = [1, 2, 3, 5, Math.min(8, safe), Math.min(12, safe), Math.min(15, safe), safe];
+                const uniq = [...new Set(steps.filter(s => s > 0 && s <= safe))];
+                const frag = document.createDocumentFragment();
+                uniq.forEach(s => {
+                    const v = calcMult(mines, s);
+                    const d = document.createElement('div'); d.className = 'mt-row';
+                    d.innerHTML = `<span>${s} ô 💎</span><span class="mv">${v.toFixed(2)}x</span>`;
+                    frag.appendChild(d);
+                });
+                mtRows.innerHTML = '';
+                mtRows.appendChild(frag);
+            }
+
+            /* ═══════════════════════════════════════════════
+               BUILD GRID (Optimized: DocumentFragment + event delegation)
+               ═══════════════════════════════════════════════ */
+            // Cache cell references for fast lookup
+            let cellCache = [];
+
+            function buildGrid() {
+                gridEl.innerHTML = '';
+                const frag = document.createDocumentFragment();
+                cellCache = [];
+                for (let i = 0; i < 25; i++) {
+                    const c = document.createElement('div');
+                    c.className = 'cell';
+                    c.dataset.i = i;
+                    c.innerHTML = '<span class="ico"></span>';
+                    frag.appendChild(c);
+                    cellCache[i] = c;
+                }
+                gridEl.appendChild(frag);
+            }
+
+            // Event delegation on grid instead of 25 individual listeners
+            gridEl.addEventListener('click', e => {
+                const cell = e.target.closest('.cell');
+                if (!cell) return;
+                const idx = +cell.dataset.i;
+                revealCell(idx);
+            });
+
+            function getCell(i) { return cellCache[i] || null; }
+
+            /* ═══════════════════════════════════════════════
+               START GAME
+               ═══════════════════════════════════════════════ */
+            startBtn.onclick = startGame;
+
+            async function startGame() {
+                if (active || busy) return;
+                if (balance < bet) {
+                    msg('❌ Không đủ tiền!', 'lose');
+                    vib([50, 50, 50]); return;
+                }
+                busy = true;
+                startBtn.disabled = true;
+                startBtn.textContent = '⏳ Đang tạo...';
+
+                try {
+                    const d = await api('/api/mines/start', { bet, mineCount: mines });
+
+                    if (d.error) {
+                        msg('❌ ' + d.error, 'lose');
+                        startBtn.disabled = false; startBtn.textContent = '💣 BẮT ĐẦU'; busy = false; return;
+                    }
+
+                    balance = Number(d.newBalance) || 0; animBal(balance);
+                    active = true; revealed = 0; mult = 1; win = 0; streak = 0;
+
+                    buildGrid();
+                    play('flip'); vib(50);
+
+                    setupEl.style.display = 'none';
+                    gameEl.style.display = 'block';
+                    cashBtn.style.display = 'none';
+                    rmsgEl.textContent = '';
+                    rmsgEl.className = 'rmsg';
+
+                    iMines.textContent = mines;
+                    iMult.textContent = '1.00x';
+                    iWin.textContent = '0 $';
+                    iNext.textContent = calcMult(mines, 1).toFixed(2) + 'x';
+
+                    // remove old tension & effects
+                    gameCard.className = 'card';
+                    clearVignette();
+                    updateStreakUI(0);
+
+                } catch (e) {
+                    msg('❌ Lỗi kết nối!', 'lose');
+                }
+                startBtn.disabled = false; startBtn.textContent = '💣 BẮT ĐẦU'; busy = false;
+            }
+
+            /* ═══════════════════════════════════════════════
+               REVEAL CELL
+               ═══════════════════════════════════════════════ */
+            async function revealCell(idx) {
+                if (!active || busy) return;
+                const cell = getCell(idx);
+                if (!cell || cell.classList.contains('open')) return;
+
+                busy = true;
+
+                // ── INSTANT feedback: flip cell immediately ──
+                cell.classList.add('open', 'pending');
+                cell.querySelector('.ico').textContent = '⏳';
+                play(Math.random() > .5 ? 'tileClick' : 'tileClick2');
+
+                try {
+                    const d = await api('/api/mines/reveal', { cell: idx });
+
+                    if (d.error) {
+                        // revert cell
+                        cell.classList.remove('open', 'pending');
+                        cell.querySelector('.ico').textContent = '';
+                        msg('❌ ' + d.error, 'lose');
+                        busy = false; return;
+                    }
+
+                    // Remove pending state
+                    cell.classList.remove('pending');
+
+                    /* ── MINE HIT ── */
+                    if (d.result === 'mine') {
+                        active = false; streak = 0;
+
+                        cell.classList.add('boom');
+                        cell.querySelector('.ico').textContent = '💣';
+                        play('boom');
+                        vib([100, 50, 100, 50, 200]);
+
+                        // spawn red explosion particles
+                        spawnParticles(cell, '#ff4757', 12);
+
+                        // screen shake
+                        gameCard.style.animation = 'none';
+                        requestAnimationFrame(() => {
+                            gameCard.style.animation = 'shake .45s ease';
+                            setTimeout(() => gameCard.style.animation = '', 460);
+                        });
+
+                        flash('rgba(255,0,0,.3)');
+                        updateStreakUI(0);
+                        clearVignette();
+
+                        // fast staggered reveal of other mines
+                        let delay = 0;
+                        d.mines.forEach(m => {
+                            if (m === idx) return;
+                            setTimeout(() => {
+                                const mc = getCell(m);
+                                if (mc && !mc.classList.contains('open')) {
+                                    mc.classList.add('open', 'show');
+                                    mc.querySelector('.ico').textContent = '💣';
+                                }
+                            }, delay);
+                            delay += 35;
+                        });
+                        // dim remaining safe
+                        setTimeout(() => {
+                            gridEl.querySelectorAll('.cell:not(.open)').forEach(c => {
+                                c.classList.add('open', 'dim');
+                                c.querySelector('.ico').textContent = '💎';
+                            });
+                        }, delay);
+
+                        balance = Number(d.newBalance) || 0; animBal(balance);
+                        msg(`💥 BOOM! Mất ${bet.toLocaleString()} $`, 'lose');
+                        addHist(false, bet, mines, 0, revealed);
+                        setTimeout(toSetup, 2200);
+                        busy = false;
+                        return;
+                    }
+
+                    /* ── SAFE / CLEARED ── */
+                    streak++;
+                    cell.classList.add('gem');
+                    cell.querySelector('.ico').textContent = '💎';
+                    playGemStreak(streak);
+                    vib(30 + Math.min(streak * 5, 50));
+
+                    // sparkle particles
+                    const pCount = 5 + Math.min(streak, 8);
+                    spawnParticles(cell, '#00ff9d', pCount);
+                    if (streak >= 5) spawnParticles(cell, '#FFD700', 3);
+
+                    revealed = d.revealedCount || (revealed + 1);
+                    mult = Number(d.multiplier) || 1;
+                    win = Number(d.currentWin) || 0;
+
+                    // floating multiplier pop text
+                    showMultPop(cell, mult.toFixed(2) + 'x');
+                    updateStreakUI(streak);
+
+                    iMult.textContent = mult.toFixed(2) + 'x';
+                    iWin.textContent = win.toLocaleString() + ' $';
+                    iNext.textContent = d.nextMultiplier ? Number(d.nextMultiplier).toFixed(2) + 'x' : '🏆 MAX';
+
+                    // glow the info values briefly
+                    iMult.classList.add('glow');
+                    iWin.classList.add('glow');
+                    setTimeout(() => { iMult.classList.remove('glow'); iWin.classList.remove('glow'); }, 300);
+
+                    // tension + vignette
+                    const safeCells = 25 - mines;
+                    const remain = safeCells - revealed;
+                    updateTension(remain, safeCells);
+                    updateVignette(remain, safeCells);
+
+                    // show cashout with pulse
+                    cashBtn.style.display = 'block';
+                    cashBtn.classList.add('pulse');
+                    cashSub.textContent = `${mult.toFixed(2)}x = ${win.toLocaleString()} $`;
+
+                    if (d.result === 'cleared') {
+                        active = false;
+                        balance = Number(d.newBalance) || 0; animBal(balance);
+
+                        d.mines.forEach(m => {
+                            const mc = getCell(m);
+                            if (mc) { mc.classList.add('open', 'show'); mc.querySelector('.ico').textContent = '💣'; }
+                        });
+
+                        play('cashout');
+                        setTimeout(() => play('chip'), 200);
+                        bigWin(win, mult);
+                        addHist(true, bet, mines, mult, revealed);
+                        setTimeout(toSetup, 2200);
+                        busy = false;
+                        return;
+                    }
+
+                    busy = false;
+
+                } catch (e) {
+                    // revert cell on network error
+                    cell.classList.remove('open', 'pending');
+                    cell.querySelector('.ico').textContent = '';
+                    msg('❌ Lỗi kết nối!', 'lose');
+                    busy = false;
+                }
+            }
+
+            /* ═══════════════════════════════════════════════
+               TENSION
+               ═══════════════════════════════════════════════ */
+            function updateTension(remain, total) {
+                const r = remain / total;
+                gameCard.classList.remove('t-med', 't-high', 't-max');
+                if (r <= .15) gameCard.classList.add('t-max');
+                else if (r <= .3) gameCard.classList.add('t-high');
+                else if (r <= .5) gameCard.classList.add('t-med');
+            }
+
+            /* ═══════════════════════════════════════════════
+               CASHOUT
+               ═══════════════════════════════════════════════ */
+            cashBtn.onclick = doCashout;
+
+            async function doCashout() {
+                if (!active || revealed === 0 || busy) return;
+                busy = true;
+                cashBtn.disabled = true;
+                cashBtn.innerHTML = '⏳ Đang rút...';
+
+                try {
+                    const d = await api('/api/mines/cashout');
+
+                    if (d.error) {
+                        msg('❌ ' + d.error, 'lose');
+                        cashBtn.disabled = false;
+                        cashBtn.innerHTML = '💰 RÚT TIỀN<span class="sub" id="cashSub"></span>';
+                        busy = false; return;
+                    }
+
+                    active = false; streak = 0;
+                    balance = Number(d.newBalance) || 0; animBal(balance);
+
+                    play('cashout');
+                    if (d.multiplier >= 2) { setTimeout(() => play('chip'), 180); setTimeout(() => play('chip'), 360); }
+                    vib([50, 30, 50, 30, 100, 50, 150]);
+
+                    // green flash
+                    flash('rgba(0,255,157,.18)');
+
+                    // clear tension effects
+                    updateStreakUI(0);
+                    clearVignette();
+                    cashBtn.classList.remove('pulse');
+
+                    // staggered reveal mines
+                    let delay = 0;
+                    d.mines.forEach(m => {
+                        setTimeout(() => {
+                            const mc = getCell(m);
+                            if (mc && !mc.classList.contains('open')) {
+                                mc.classList.add('open', 'show');
+                                mc.querySelector('.ico').textContent = '💣';
+                            }
+                        }, delay);
+                        delay += 40;
+                    });
+                    setTimeout(() => {
+                        gridEl.querySelectorAll('.cell:not(.open)').forEach(c => {
+                            c.classList.add('open', 'dim');
+                            c.querySelector('.ico').textContent = '💎';
+                        });
+                    }, delay);
+
+                    gameCard.classList.remove('t-med', 't-high', 't-max');
+
+                    if (d.multiplier >= 2.5) {
+                        bigWin(d.winAmount, d.multiplier);
+                    } else {
+                        msg(`💰 Rút +${(Number(d.winAmount) || 0).toLocaleString()} $ (x${(Number(d.multiplier) || 0).toFixed(2)})`, 'win');
+                    }
+
+                    addHist(true, d.bet, mines, d.multiplier, revealed);
+                    setTimeout(toSetup, 1800);
+                    busy = false;
+
+                } catch (e) {
+                    msg('❌ Lỗi kết nối!', 'lose');
+                    cashBtn.disabled = false; busy = false;
+                }
+            }
+
+            /* ═══════════════════════════════════════════════
+               UI HELPERS
+               ═══════════════════════════════════════════════ */
+            function toSetup() {
+                setupEl.style.display = 'flex';
+                gameEl.style.display = 'none';
+                cashBtn.style.display = 'none';
+                cashBtn.disabled = false;
+                cashBtn.classList.remove('pulse');
+                cashBtn.innerHTML = '💰 RÚT TIỀN <span class="sub" id="cashSub"></span>';
+                gameCard.className = 'card';
+                clearVignette();
+                updateStreakUI(0);
+                particlesEl.innerHTML = '';
+            }
+
+            function msg(text, type) {
+                rmsgEl.textContent = text;
+                rmsgEl.className = 'rmsg ' + (type || '');
+            }
+
+            function flash(color) {
+                const d = document.createElement('div');
+                d.style.cssText = `position:fixed;inset:0;background:${color};z-index:999;pointer-events:none;animation:flashOut .45s ease forwards`;
+                document.body.appendChild(d);
+                setTimeout(() => d.remove(), 500);
+            }
+
+            function addHist(isWin, betAmt, mc, m, rev) {
+                // clear empty message
+                const empty = histList.querySelector('.hist-empty');
+                if (empty) empty.remove();
+
+                const el = document.createElement('div');
+                el.className = 'hi';
+                const winAmt = isWin ? Math.floor(betAmt * m) : 0;
+                el.innerHTML = `
+    <div class="hi-l">
+      <span>${isWin ? '💎' : '💣'}</span>
+      <span class="hi-meta">${mc} mìn · ${rev} ô</span>
+      ${isWin ? `<span class="hi-mult">x${m.toFixed(2)}</span>` : ''}
+    </div>
+    <span class="${isWin ? 'hi-win' : 'hi-lose'}">${isWin ? '+' + winAmt.toLocaleString() : '-' + betAmt.toLocaleString()} $</span>
+  `;
+                histList.insertBefore(el, histList.firstChild);
+                if (histList.children.length > 20) histList.removeChild(histList.lastChild);
+            }
+
+            function bigWin(amount, m) {
+                ovAmt.textContent = '+' + amount.toLocaleString() + ' $';
+                ovDet.textContent = `Hệ số x${m.toFixed(2)} · Cược ${bet.toLocaleString()} $`;
+                winOv.classList.add('on');
+                spawnConfetti();
+            }
+
+            $('ovClose').onclick = () => winOv.classList.remove('on');
+
+            function spawnConfetti() {
+                const colors = ['#FFD700', '#ff6b6b', '#00ff9d', '#bc13fe', '#00f3ff', '#ff0096', '#FFA500', '#fff'];
+                const frag = document.createDocumentFragment();
+                const count = 45; // Reduced from 90 for performance
+                for (let i = 0; i < count; i++) {
+                    const el = document.createElement('div');
+                    el.className = 'cf';
+                    const color = colors[i & 7]; // bitwise mod instead of Math.floor
+                    el.style.cssText = `left:${Math.random() * 100}%;background:${color};animation-delay:${Math.random() * 2}s;animation-duration:${1.5 + Math.random() * 2}s;width:${4 + Math.random() * 10}px;height:${4 + Math.random() * 10}px;border-radius:${Math.random() > .5 ? '50%' : '2px'}`;
+                    frag.appendChild(el);
+                }
+                confettiEl.appendChild(frag);
+                setTimeout(() => confettiEl.innerHTML = '', 4000);
+            }
+
+            /* ═══════════════════════════════════════════════
+               KEYBOARD SHORTCUT
+               ═══════════════════════════════════════════════ */
+            document.addEventListener('keydown', e => {
+                if (e.code === 'Space' && active && revealed > 0 && !busy) { e.preventDefault(); doCashout(); }
+            }, { passive: false });
+
+            /* ═══════════════════════════════════════════════
+               RESTORE ACTIVE GAME
+               ═══════════════════════════════════════════════ */
+            async function restoreGame() {
+                try {
+                    const r = await fetch('/api/mines/status');
+                    const d = await r.json();
+                    if (!d.active) return;
+
+                    active = true;
+                    bet = d.bet;
+                    mines = d.mineCount;
+                    revealed = d.revealed.length;
+                    mult = d.multiplier;
+                    win = d.currentWin;
+                    streak = revealed;
+
+                    buildGrid();
+
+                    d.revealed.forEach(idx => {
+                        const c = getCell(idx);
+                        if (c) { c.classList.add('open', 'gem'); c.querySelector('.ico').textContent = '💎'; }
+                    });
+
+                    setupEl.style.display = 'none';
+                    gameEl.style.display = 'block';
+                    iMines.textContent = mines;
+                    iMult.textContent = mult.toFixed(2) + 'x';
+                    iWin.textContent = win.toLocaleString() + ' $';
+                    iNext.textContent = '—';
+
+                    if (revealed > 0) {
+                        cashBtn.style.display = 'block';
+                        cashBtn.classList.add('pulse');
+                        cashSub.textContent = `${mult.toFixed(2)}x = ${win.toLocaleString()} $`;
+                        // calc next
+                        const nm = calcMult(mines, revealed + 1);
+                        const safeCells = 25 - mines;
+                        iNext.textContent = revealed >= safeCells - 1 ? '🏆 MAX' : nm.toFixed(2) + 'x';
+                        updateTension(safeCells - revealed, safeCells);
+                        updateVignette(safeCells - revealed, safeCells);
+                        updateStreakUI(streak);
+                    }
+                } catch (e) { }
+            }
+
+            /* ═══════════════════════════════════════════════
+               INIT
+               ═══════════════════════════════════════════════ */
+            buildGrid();
+            updMultTable();
+            loadBalance();
+            restoreGame();
+
+        })();
+    </script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/ppz-sfx-engine.js"></script>
+    <script src="/js/sound-system.js"></script>
+    <script src="/js/notify-system.js"></script>
+    <script src="/js/tutorial-system.js"></script>
+    <script src="/js/chat-system.js"></script>
+    <script src="/js/live-feed.js"></script>
+
+    <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => { });</script>
+    <script>window.addEventListener('load', () => { const l = document.getElementById('ppz-loading'); if (l) { l.style.opacity = '0'; setTimeout(() => l.remove(), 500) } })</script>
+</body>
+
+</html>
